@@ -1,4 +1,4 @@
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from typing import List, Optional
 
 
@@ -6,13 +6,14 @@ from typing import List, Optional
 class CalendarEvent:
     id: str
     title: str
+    source: str
     calendar: str
-    calendar_type: str
     description: Optional[str]
     location: Optional[str]
     participants: List[str]
     start_ts: str
     end_ts: str
+    status: str
 
     def to_str(self) -> str:
         parts: List[str] = []

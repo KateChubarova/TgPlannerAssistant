@@ -26,16 +26,6 @@ def _get_creds():
     return creds
 
 
-def to_iso(dct: dict):
-    if not dct:
-        return ""
-    if dct.get("dateTime"):
-        return dct["dateTime"]
-    if dct.get("date"):
-        return dct["date"] + "T00:00:00Z"
-    return ""
-
-
 def fetch_events(calendar_id: str = "primary", time_min: datetime | None = None, time_max: datetime | None = None,
                  max_results: int = 2500) -> [CalendarEvent]:
     creds = _get_creds()
@@ -58,12 +48,13 @@ def fetch_events(calendar_id: str = "primary", time_min: datetime | None = None,
     for item in events_result.get("items", []):
         yield CalendarEvent(
             id=item.get("id"),
-            calendar="google",
-            calendar_type=calendar_id,
+            source="google",
+            calendar=calendar_id,
             title=item.get("summary"),
             description=item.get("description"),
             location=item.get("location"),
             participants=[a.get("email") or a.get("displayName") or "" for a in item.get("attendees", [])],
-            start_ts=to_iso(item.get("start", {})),
-            end_ts=to_iso(item.get("end", {}))
+            start_ts=item.get("start"),
+            end_ts=item.get("end"),
+            status="confirmed"
         )

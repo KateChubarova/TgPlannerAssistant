@@ -6,9 +6,9 @@ from openai import OpenAI
 from shared.models.calendar_event import CalendarEvent
 from shared.models.mappers import map_event_to_embedding
 
-ENGINE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg://k.chubarava@localhost/postgres")
+ENGINE_URL = os.getenv("DATABASE_URL")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
+MODEL = os.getenv("EMBEDDING_MODEL")
 
 engine = create_engine(ENGINE_URL, future=True)
 client = OpenAI(api_key=OPENAI_API_KEY)

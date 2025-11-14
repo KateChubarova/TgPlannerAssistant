@@ -21,7 +21,7 @@ def rows_from_events(events: Iterable[CalendarEvent]) -> List[Dict[str, Any]]:
     return rows
 
 
-def load_all_events():
+def load_all_events() -> int:
     events = fetch_events(calendar_id="primary")
     batch = rows_from_events(events)
     if not batch:
@@ -32,3 +32,4 @@ def load_all_events():
         conn.execute(insert(tbl), batch)
 
     print(f"✅{len(batch)} events saved to public.tg_embeddings")
+    return len(batch)

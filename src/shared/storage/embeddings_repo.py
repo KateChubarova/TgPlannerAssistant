@@ -1,13 +1,7 @@
-import os
 from typing import List, Sequence
-from sqlalchemy import create_engine, MetaData, Table, text, RowMapping
+from sqlalchemy import text, RowMapping
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-engine = create_engine(DATABASE_URL, future=True)
-meta = MetaData()
-
-tbl = Table("tg_embeddings", meta, autoload_with=engine, schema="public")
+from shared.db import engine
 
 
 def search_similar_embeddings(

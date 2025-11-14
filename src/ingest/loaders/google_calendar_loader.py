@@ -1,17 +1,11 @@
 from typing import Iterable, Dict, Any, List
-import os
 from ingest.providers.google_calendar import fetch_events
-from sqlalchemy import create_engine, MetaData, Table, insert
+from sqlalchemy import  insert
+
+from shared.db import engine, tbl
 from shared.models.calendar_event import CalendarEvent
 from shared.models.mappers import map_event_to_embedding
 from shared.nlp.embeddings import embed_calendar_event
-
-ENGINE_URL = os.getenv("DATABASE_URL")
-engine = create_engine(ENGINE_URL, future=True)
-
-meta = MetaData()
-tbl = Table("tg_embeddings", meta, autoload_with=engine, schema="public")
-
 
 def rows_from_events(events: Iterable[CalendarEvent]) -> List[Dict[str, Any]]:
     rows: List[Dict[str, Any]] = []

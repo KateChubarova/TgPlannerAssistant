@@ -28,10 +28,3 @@ def save_tokens(user_id, access, refresh, expiry):
         user.token_expiry = expiry
 
         session.commit()
-
-
-def save_tokens(user):
-    print("save tokens")
-    with SessionLocal() as session:
-        session.add(user)
-        session.commit()

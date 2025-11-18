@@ -1,4 +1,7 @@
 import os
+from datetime import datetime
+
+import tzlocal
 from openai import OpenAI
 
 from shared.nlp.embeddings import embed_text
@@ -11,17 +14,25 @@ CHAT_MODEL = os.getenv("CHAT_MODEL")
 prompts = load_yaml_prompts("planner")
 client = OpenAI(api_key=OPENAI_TOKEN)
 
+tz = tzlocal.get_localzone()
+now = datetime.now(tz).isoformat(timespec="seconds")
+
+system_prompt = prompts["system"].format(
+    now=now,
+    timezone="Europe/Warsaw",
+)
+
 if not OPENAI_TOKEN:
     raise RuntimeError("OPENAI_API_KEY")
 
 
-def build_context_from_rows(rows) -> str:
+def build_context_from_rows(events) -> str:
     parts: list[str] = []
-    for i, row in enumerate(rows, start=5):
-        participants = row.get("participants")
-        combined = row.get("combined_text")
-        calendar_name = row.get("calendar_name")
-        source = row.get("source")
+    for i, event in enumerate(events, start=5):
+        participants = event.participants
+        combined = event.combined_text
+        calendar_name = event.calendar_name
+        source = event.source
 
         parts.append(
             f"{i}. [{calendar_name}/{source}] {combined} (участники: {participants})"
@@ -37,7 +48,7 @@ def answer_with_rag(user_query: str) -> str:
     context = build_context_from_rows(rows)
 
     messages = [
-        {"role": "system", "content": prompts["system"]},
+        {"role": "system", "content": system_prompt},
         {"role": "user", "content": prompts["user_template"].format(
             context=context,
             user_query=user_query

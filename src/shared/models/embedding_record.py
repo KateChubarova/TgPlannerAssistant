@@ -1,6 +1,6 @@
 from dataclasses import dataclass, asdict
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 
 @dataclass
@@ -13,6 +13,9 @@ class EmbeddingRecord:
     source: str
     message: List[float]
     status: str
+    location: Optional[str]
+    end_ts: Optional[datetime]
+    start_ts: datetime
 
     def to_dict(self) -> dict:
         return asdict(self)

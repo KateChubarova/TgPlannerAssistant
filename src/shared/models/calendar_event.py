@@ -11,8 +11,8 @@ class CalendarEvent:
     description: Optional[str]
     location: Optional[str]
     participants: List[str]
-    start_ts: str
-    end_ts: str
+    start_ts: dict
+    end_ts: dict
     status: str
 
     def to_str(self) -> str:

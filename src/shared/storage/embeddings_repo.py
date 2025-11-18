@@ -1,34 +1,30 @@
-from typing import List, Sequence
-from sqlalchemy import text, RowMapping
+from typing import List
+from sqlalchemy import text, select, bindparam
 
-from shared.db import engine
+from shared.db import engine, tbl
+from shared.models.embedding_record import EmbeddingRecord
 
 
 def search_similar_embeddings(
         embedding: List[float],
         top_k: int = 5,
-) -> Sequence[RowMapping]:
-    query = text("""
-        SELECT
-            id,
-            combined_text,
-            participants,
-            calendar_name,
-            updated_at,
-            source,
-            status
-        FROM tg_embeddings
-        ORDER BY message <-> CAST(:query_embedding AS vector)
-        LIMIT :top_k
-    """)
+) -> list[EmbeddingRecord]:
+    query = (
+        select(tbl)
+        .order_by(text("message <-> CAST(:query_embedding AS vector)"))
+        .limit(bindparam("top_k"))
+    )
 
     with engine.connect() as conn:
-        rows = conn.execute(
+        result = conn.execute(
             query,
             {
                 "query_embedding": embedding,
                 "top_k": top_k,
             },
-        ).mappings().all()
+        )
+        rows = result.mappings().all()
 
-    return rows
+    records = [EmbeddingRecord(**row) for row in rows]
+
+    return records

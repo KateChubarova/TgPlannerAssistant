@@ -9,7 +9,6 @@ def map_event_to_embedding(
         event: CalendarEvent,
         vec: List[float]
 ) -> EmbeddingRecord:
-
     return EmbeddingRecord(
         id=event.id,
         participants=event.participants,
@@ -19,4 +18,7 @@ def map_event_to_embedding(
         source=event.calendar,
         status=event.status,
         message=vec,
+        location=event.location,
+        start_ts=datetime.fromisoformat(event.start_ts['dateTime']),
+        end_ts=datetime.fromisoformat(event.end_ts['dateTime'])
     )

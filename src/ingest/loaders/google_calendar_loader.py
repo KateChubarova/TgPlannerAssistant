@@ -1,6 +1,6 @@
 from typing import Iterable, Dict, Any, List
 from ingest.providers.google_calendar import fetch_events
-from sqlalchemy import insert
+from sqlalchemy import select, insert, update, delete
 
 from shared.db import engine, tbl
 from shared.models.calendar_event import CalendarEvent
@@ -16,14 +16,43 @@ def rows_from_events(events: Iterable[CalendarEvent]) -> List[Dict[str, Any]]:
     return rows
 
 
-def load_all_events() -> int:
+def load_all_events() -> {int}:
     events = fetch_events(calendar_id="primary")
     batch = rows_from_events(events)
     if not batch:
         raise ValueError("Календарь пуст или не удалось извлечь события")
 
-    with engine.begin() as conn:
-        conn.execute(insert(tbl), batch)
+    incoming_ids = {row["id"] for row in batch}
 
-    print(f"✅{len(batch)} events saved to public.tg_embeddings")
-    return len(batch)
+    with engine.begin() as conn:
+        existing_ids = {
+            row[0]
+            for row in conn.execute(select(tbl.c.id))
+        }
+
+        to_insert = [row for row in batch if row["id"] not in existing_ids]
+        to_update = [row for row in batch if row["id"] in existing_ids]
+        to_delete = existing_ids - incoming_ids
+
+        if to_insert:
+            conn.execute(insert(tbl), to_insert)
+
+        for row in to_update:
+            stmt = (
+                update(tbl)
+                .where(tbl.c.id == row["id"])
+                .values(**row)
+            )
+            conn.execute(stmt)
+
+        if to_delete:
+            conn.execute(
+                delete(tbl).where(tbl.c.id.in_(to_delete))
+            )
+
+    print(
+        f"🔄 Sync complete: +{len(to_insert)} inserted, "
+        f"{len(to_update)} updated, -{len(to_delete)} deleted"
+    )
+
+    return len(to_insert), len(to_update), len(to_delete)

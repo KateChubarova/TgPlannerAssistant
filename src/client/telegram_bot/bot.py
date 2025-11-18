@@ -12,17 +12,32 @@ if not TELEGRAM_BOT_TOKEN:
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 
 
+def _get_message(inserted, updated, deleted) -> str:
+    message = "Готово! ✨ Я синхронизировал твой календарь:\n"
+
+    if inserted > 0:
+        message += f"• ➕ Добавил: {inserted}\n"
+
+    if updated > 0:
+        message += f"• 🔄 Обновил: {updated}\n"
+
+    if deleted > 0:
+        message += f"• ➖ Убрал: {deleted}\n"
+
+    return message
+
+
 @bot.message_handler(commands=["start"])
 def handle_start(message: telebot.types.Message):
     chat_id = message.chat.id
     bot.send_message(chat_id, "Привет! Сейчас синхронизирую твой Google Calendar...")
 
     try:
-        count = load_all_events()
+        inserted, updated, deleted = load_all_events()
+
         bot.send_message(
             chat_id,
-            f"Готово 🎉 Я загрузил {count} событий из календаря.\n"
-            f"Теперь можешь спрашивать, например: «Что у меня на завтра?»",
+            _get_message(inserted, updated, deleted)
         )
     except Exception as e:
         print("Calendar sync error:", repr(e))
@@ -41,7 +56,11 @@ def process_message(message: telebot.types.Message):
     except Exception as e:
         print("RAG error:", repr(e))
         reply = "У меня сейчас проблемы с доступом к данным. Попробуй ещё раз позже 🛠️"
-    bot.send_message(message.chat.id, reply)
+    bot.send_message(
+        message.chat.id,
+        reply,
+        parse_mode="Markdown"
+    )
 
 
 bot.infinity_polling()

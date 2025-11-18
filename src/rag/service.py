@@ -4,6 +4,7 @@ from datetime import datetime
 import tzlocal
 from openai import OpenAI
 
+from shared.models.user import TgUser
 from shared.nlp.embeddings import embed_text
 from shared.nlp.prompts.loader import load_yaml_prompts
 from shared.storage.embeddings_repo import search_similar_embeddings
@@ -19,7 +20,7 @@ now = datetime.now(tz).isoformat(timespec="seconds")
 
 system_prompt = prompts["system"].format(
     now=now,
-    timezone="Europe/Warsaw",
+    timezone=tz
 )
 
 if not OPENAI_TOKEN:
@@ -41,9 +42,9 @@ def build_context_from_rows(events) -> str:
     return "\n".join(parts) if parts else "Нет релевантных записей календаря."
 
 
-def answer_with_rag(user_query: str) -> str:
+def answer_with_rag(user: TgUser, user_query: str) -> str:
     query_embedding = embed_text(user_query)
-    rows = search_similar_embeddings(query_embedding, top_k=5)
+    rows = search_similar_embeddings(user, query_embedding, top_k=5)
 
     context = build_context_from_rows(rows)
 

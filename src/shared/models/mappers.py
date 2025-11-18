@@ -3,9 +3,11 @@ from typing import List
 
 from shared.models.calendar_event import CalendarEvent
 from shared.models.embedding_record import EmbeddingRecord
+from shared.models.user import TgUser
 
 
 def map_event_to_embedding(
+        user: TgUser,
         event: CalendarEvent,
         vec: List[float]
 ) -> EmbeddingRecord:
@@ -20,5 +22,6 @@ def map_event_to_embedding(
         message=vec,
         location=event.location,
         start_ts=datetime.fromisoformat(event.start_ts['dateTime']),
-        end_ts=datetime.fromisoformat(event.end_ts['dateTime'])
+        end_ts=datetime.fromisoformat(event.end_ts['dateTime']),
+        user_id=user.id
     )

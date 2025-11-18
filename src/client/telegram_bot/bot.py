@@ -3,11 +3,10 @@ import telebot
 
 from ingest.loaders.google_calendar_loader import load_all_events
 from rag.service import answer_with_rag
+from shared.db import SessionLocal
+from shared.storage.users_repo import get_user, create_user
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-
-if not TELEGRAM_BOT_TOKEN:
-    raise RuntimeError("TELEGRAM_BOT_TOKEN не задан в .env")
 
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 
@@ -30,15 +29,23 @@ def _get_message(inserted, updated, deleted) -> str:
 @bot.message_handler(commands=["start"])
 def handle_start(message: telebot.types.Message):
     chat_id = message.chat.id
-    bot.send_message(chat_id, "Привет! Сейчас синхронизирую твой Google Calendar...")
+    user_id = message.from_user.id
+    with SessionLocal() as session:
+        user = get_user(session, user_id)
+        if not user:
+            user = create_user(session,
+                               user_id,
+                               message.from_user.first_name,
+                               message.from_user.last_name,
+                               message.from_user.username)
 
     try:
-        inserted, updated, deleted = load_all_events()
-
+        inserted, updated, deleted = load_all_events(session, user)
         bot.send_message(
             chat_id,
             _get_message(inserted, updated, deleted)
         )
+
     except Exception as e:
         print("Calendar sync error:", repr(e))
         bot.send_message(
@@ -51,16 +58,20 @@ def handle_start(message: telebot.types.Message):
 @bot.message_handler(content_types=["text"])
 def process_message(message: telebot.types.Message):
     user_text = message.text or ""
-    try:
-        reply = answer_with_rag(user_text)
-    except Exception as e:
-        print("RAG error:", repr(e))
-        reply = "У меня сейчас проблемы с доступом к данным. Попробуй ещё раз позже 🛠️"
-    bot.send_message(
-        message.chat.id,
-        reply,
-        parse_mode="Markdown"
-    )
+    user_id = message.from_user.id
+
+    with SessionLocal() as session:
+        user = get_user(session, user_id)
+        try:
+            reply = answer_with_rag(user, user_text)
+        except Exception as e:
+            print("RAG error:", repr(e))
+            reply = "У меня сейчас проблемы с доступом к данным. Попробуй ещё раз позже 🛠️"
+        bot.send_message(
+            message.chat.id,
+            reply,
+            parse_mode="Markdown"
+        )
 
 
 bot.infinity_polling()

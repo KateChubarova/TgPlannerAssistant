@@ -15,7 +15,8 @@ class EmbeddingRecord:
     status: str
     location: Optional[str]
     end_ts: Optional[datetime]
-    start_ts: datetime
+    start_ts: Optional[datetime]
+    user_id: int
 
     def to_dict(self) -> dict:
         return asdict(self)

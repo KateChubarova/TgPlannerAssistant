@@ -2,11 +2,13 @@ import os
 from openai import OpenAI
 
 from shared.nlp.embeddings import embed_text
+from shared.nlp.prompts.loader import load_yaml_prompts
 from shared.storage.embeddings_repo import search_similar_embeddings
 
 OPENAI_TOKEN = os.getenv("OPENAI_API_KEY")
 CHAT_MODEL = os.getenv("CHAT_MODEL")
 
+prompts = load_yaml_prompts("planner")
 client = OpenAI(api_key=OPENAI_TOKEN)
 
 if not OPENAI_TOKEN:
@@ -35,21 +37,11 @@ def answer_with_rag(user_query: str) -> str:
     context = build_context_from_rows(rows)
 
     messages = [
-        {
-            "role": "system",
-            "content": (
-                "Ты ассистент-планировщик. "
-                "Отвечай, опираясь на контекст событий календаря пользователя. "
-                "Если информации недостаточно — честно скажи об этом."
-            ),
-        },
-        {
-            "role": "user",
-            "content": (
-                f"Контекст событий (из базы):\n{context}\n\n"
-                f"Вопрос пользователя: {user_query}"
-            ),
-        },
+        {"role": "system", "content": prompts["system"]},
+        {"role": "user", "content": prompts["user_template"].format(
+            context=context,
+            user_query=user_query
+        )},
     ]
 
     completion = client.chat.completions.create(

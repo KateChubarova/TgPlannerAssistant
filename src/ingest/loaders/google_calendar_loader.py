@@ -1,6 +1,5 @@
 from typing import Iterable, Dict, Any, List
 
-from requests import Session
 
 from ingest.providers.google_calendar import fetch_events
 from sqlalchemy import select, insert, update, delete
@@ -20,8 +19,8 @@ def rows_from_events(user: TgUser, events: Iterable[CalendarEvent]) -> List[Dict
     return rows
 
 
-def load_all_events(session: Session, user: TgUser) -> {int}:
-    events = fetch_events(session, user)
+def load_all_events(user: TgUser) -> {int}:
+    events = fetch_events(user)
     batch = rows_from_events(user, events)
     if not batch:
         raise ValueError("Календарь пуст или не удалось извлечь события")

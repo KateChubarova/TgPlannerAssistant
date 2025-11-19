@@ -6,14 +6,17 @@ def get_user(session, user_id: int) -> TgUser | None:
     return session.get(TgUser, user_id)
 
 
-def create_user(session, user_id, first_name, last_name, username):
-    user = TgUser(
-        id=user_id,
-        first_name=first_name,
-        last_name=last_name,
-        username=username
-    )
-    session.add(user)
+def create_user(user_id, first_name, last_name, username):
+    with SessionLocal() as session:
+        user = TgUser(
+            id=user_id,
+            first_name=first_name,
+            last_name=last_name,
+            username=username
+        )
+        session.add(user)
+        session.commit()
+        session.refresh(user)
     return user
 
 

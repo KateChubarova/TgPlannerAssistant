@@ -2,22 +2,19 @@ import os
 from datetime import datetime, timedelta
 
 from googleapiclient.discovery import build
-from requests import Session
 
-from ingest.providers.google_auth import get_or_create_creds
+from ingest.providers.google_auth import get_creds
 from shared.models.calendar_event import CalendarEvent
 from shared.models.user import TgUser
 
-
-SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 CREDENTIALS_PATH = os.getenv("GOOGLE_CREDENTIALS")
 TOKEN_PATH = os.getenv("GOOGLE_TOKEN")
 
 
-def fetch_events(session: Session, user: TgUser, calendar_id: str = "primary", time_min: datetime | None = None,
+def fetch_events(user: TgUser, calendar_id: str = "primary", time_min: datetime | None = None,
                  time_max: datetime | None = None,
                  max_results: int = 2500) -> [CalendarEvent]:
-    creds = get_or_create_creds(session, user)
+    creds = get_creds(user)
     service = build("calendar", "v3", credentials=creds)
 
     if time_min is None:

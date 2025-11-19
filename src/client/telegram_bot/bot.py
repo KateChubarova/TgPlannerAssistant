@@ -2,6 +2,7 @@ import os
 import telebot
 
 from ingest.loaders.google_calendar_loader import load_all_events
+from ingest.providers.google_auth import build_auth_url_for_user
 from rag.service import answer_with_rag
 from shared.db import SessionLocal
 from shared.storage.users_repo import get_user, create_user
@@ -33,31 +34,42 @@ def handle_start(message: telebot.types.Message):
     with SessionLocal() as session:
         user = get_user(session, user_id)
         if not user:
-            user = create_user(session,
-                               user_id,
-                               message.from_user.first_name,
-                               message.from_user.last_name,
-                               message.from_user.username)
+            user = create_user(
+                user_id,
+                message.from_user.first_name,
+                message.from_user.last_name,
+                message.from_user.username)
+        if not user.google_access_token:
+            auth_url = build_auth_url_for_user(user_id)
+            bot.send_message(chat_id, f"Используй эту ссылку для логина в Google Calendar {auth_url} \n\n"
+                                      f"Затем используй команду /sync")
 
-    try:
-        inserted, updated, deleted = load_all_events(session, user)
-        bot.send_message(
-            chat_id,
-            _get_message(inserted, updated, deleted)
-        )
 
-    except Exception as e:
-        print("Calendar sync error:", repr(e))
-        bot.send_message(
-            chat_id,
-            "Не удалось синхронизировать календарь 😔\n"
-            "Проверь настройки и попробуй ещё раз.",
-        )
+@bot.message_handler(commands=["sync"])
+def handle_sync(message: telebot.types.Message):
+    with SessionLocal() as session:
+        chat_id = message.chat.id
+        user_id = message.from_user.id
+        user = get_user(session, user_id)
+        try:
+            inserted, updated, deleted = load_all_events(user)
+            bot.send_message(
+                chat_id,
+                _get_message(inserted, updated, deleted)
+            )
+
+        except Exception as e:
+            print("Calendar sync error:", repr(e))
+            bot.send_message(
+                chat_id,
+                "Не удалось синхронизировать календарь 😔\n"
+                "Проверь настройки и попробуй ещё раз.",
+            )
 
 
 @bot.message_handler(content_types=["text"])
 def process_message(message: telebot.types.Message):
-    user_text = message.text or ""
+    user_text = message.text
     user_id = message.from_user.id
 
     with SessionLocal() as session:

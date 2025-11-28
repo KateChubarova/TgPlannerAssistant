@@ -6,6 +6,13 @@ from shared.models.embedding_record import EmbeddingRecord
 from shared.models.user import TgUser
 
 
+def get_date_time(date: dict):
+    if 'dateTime' in date:
+        return datetime.fromisoformat(date['dateTime'])
+    elif 'date' in date:
+        return datetime.fromisoformat(date['date'])
+
+
 def map_event_to_embedding(
         user: TgUser,
         event: CalendarEvent,
@@ -21,7 +28,7 @@ def map_event_to_embedding(
         status=event.status,
         message=vec,
         location=event.location,
-        start_ts=datetime.fromisoformat(event.start_ts['dateTime']),
-        end_ts=datetime.fromisoformat(event.end_ts['dateTime']),
+        start_ts=get_date_time(event.start_ts),
+        end_ts=get_date_time(event.end_ts),
         user_id=user.id
     )

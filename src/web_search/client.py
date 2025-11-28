@@ -19,6 +19,9 @@ class WebResult:
 
 
 def enrich_event_by_location(location: str) -> Dict:
+    """
+    Выполняет обогащение события по локации с помощью веб-поиска.
+    """
     result = simple_search(location, limit=3)
     return {
         "raw_location": location,
@@ -27,6 +30,9 @@ def enrich_event_by_location(location: str) -> Dict:
 
 
 def format_location_info(results: list[WebResult]) -> str:
+    """
+    Форматирует результаты веб-поиска о локации в удобный текстовый вид.
+    """
     if not results:
         return "Дополнительной информации о месте не нашлось."
 
@@ -46,6 +52,10 @@ def format_location_info(results: list[WebResult]) -> str:
 
 
 def simple_search(query: str, limit: int = 3) -> List[WebResult]:
+    """
+    Выполняет простой Google Custom Search по заданному запросу и возвращает
+    список структурированных результатов.
+    """
     resp = requests.get(
         GOOGLE_SEARCH_URL,
         params={

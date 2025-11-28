@@ -10,11 +10,24 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
+    """
+    Корневой эндпоинт для проверки работоспособности сервера.
+    """
     return {"status": "ok", "message": "FastAPI works!"}
 
 
 @app.get("/google/oauth2callback", response_class=HTMLResponse)
 async def google_oauth_callback(request: Request):
+    """
+    Обрабатывает OAuth2 callback от Google после авторизации пользователя.
+    Выполняет:
+    - проверку наличия ошибок,
+    - извлечение кода авторизации и состояния (state),
+    - проверку корректности user_id,
+    - обмен authorization code на токены,
+    - сохранение токенов для пользователя.
+    """
+
     params = request.query_params
 
     if "error" in params:

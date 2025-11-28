@@ -7,6 +7,13 @@ from shared.models.user import TgUser
 
 
 def get_date_time(date: dict):
+    """
+    Преобразует структуру даты из Google Calendar в объект datetime.
+    Поддерживает два формата:
+    - dateTime: полная дата со временем (например, "2025-01-14T10:00:00Z")
+    - date: только дата (например, "2025-01-14")
+    """
+
     if 'dateTime' in date:
         return datetime.fromisoformat(date['dateTime'])
     elif 'date' in date:
@@ -18,6 +25,13 @@ def map_event_to_embedding(
         event: CalendarEvent,
         vec: List[float]
 ) -> EmbeddingRecord:
+    """
+    Преобразует объект CalendarEvent в EmbeddingRecord для последующего сохранения в базу.
+    Создаёт запись с текстовым представлением события, embedding-вектором,
+    метаданными (участники, локация, статус), временными метками и привязкой к пользователю.
+        EmbeddingRecord: Готовая запись для индексации и сохранения.
+    """
+
     return EmbeddingRecord(
         id=event.id,
         participants=event.participants,

@@ -16,6 +16,10 @@ REDIRECT_URI = os.getenv("REDIRECT_URI")
 
 
 def _load_client_info() -> {str}:
+    """
+    Загружает данные клиентского приложения Google (client_id, client_secret, token_uri, auth_uri)
+    из файла credentials.json и возвращает их в виде кортежа.
+    """
     with open(CREDENTIALS_PATH, "r", encoding="utf-8") as f:
         data = json.load(f)["web"]
 
@@ -31,6 +35,10 @@ CLIENT_ID, CLIENT_SECRET, TOKEN_URI, AUTH_URI = _load_client_info()
 
 
 def _create_flow(state: str | None = None) -> Flow:
+    """
+    Создаёт OAuth2 Flow для авторизации в Google API,
+    используя client secrets, заданные разрешения и redirect URI.
+    """
     return Flow.from_client_secrets_file(
         CREDENTIALS_PATH,
         scopes=SCOPES,
@@ -40,6 +48,10 @@ def _create_flow(state: str | None = None) -> Flow:
 
 
 def build_auth_url_for_user(user_id: int) -> str:
+    """
+    Формирует URL для авторизации пользователя в Google Calendar
+    с передачей user_id в параметре state.
+    """
     flow = _create_flow()
 
     authorization_url, _ = flow.authorization_url(
@@ -53,6 +65,9 @@ def build_auth_url_for_user(user_id: int) -> str:
 
 
 def exchange_code_for_tokens(code: str, state: str) -> Credentials:
+    """
+    Обменивает код авторизации (authorization code) на OAuth2 токены Google.
+    """
     flow = _create_flow(state=state)
     flow.fetch_token(code=code)
     creds: Credentials = flow.credentials
@@ -60,6 +75,10 @@ def exchange_code_for_tokens(code: str, state: str) -> Credentials:
 
 
 def get_creds(user: TgUser) -> Optional[Credentials]:
+    """
+    Восстанавливает объект Google Credentials из данных пользователя,
+    включая access token, refresh token и срок истечения.
+    """
     creds = Credentials(
         token=user.google_access_token,
         refresh_token=user.google_refresh_token,

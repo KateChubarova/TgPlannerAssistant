@@ -12,6 +12,11 @@ from shared.nlp.embeddings import embed_calendar_event
 
 
 def rows_from_events(user: TgUser, events: Iterable[CalendarEvent]) -> List[EmbeddingRecord]:
+    """
+    Преобразует события календаря в список EmbeddingRecord.
+    Для каждого события создаётся embedding через embed_calendar_event,
+    затем данные упаковываются в EmbeddingRecord с привязкой к пользователю.
+    """
     rows: List[EmbeddingRecord] = []
     for ev in events:
         embedding_record = map_event_to_embedding(user, ev, embed_calendar_event(ev))
@@ -20,6 +25,13 @@ def rows_from_events(user: TgUser, events: Iterable[CalendarEvent]) -> List[Embe
 
 
 def load_all_events(user: TgUser) -> {int}:
+    """
+    Загружает все события пользователя из Google Calendar и синхронизирует их с базой данных.
+    Процесс синхронизации включает:
+    - вставку новых событий,
+    - обновление существующих,
+    - удаление устаревших записей, которых больше нет в календаре.
+    """
     events = fetch_events(user)
     batch = rows_from_events(user, events)
     if not batch:

@@ -14,6 +14,11 @@ TOKEN_PATH = os.getenv("GOOGLE_TOKEN")
 def fetch_events(user: TgUser, calendar_id: str = "primary", time_min: datetime | None = None,
                  time_max: datetime | None = None,
                  max_results: int = 2500) -> [CalendarEvent]:
+    """
+    Получает события Google Calendar для указанного пользователя и возвращает их в виде генератора CalendarEvent.
+    По умолчанию загружает все будущие события в диапазоне от текущего момента
+    до 180 дней вперёд, но диапазон можно переопределить.
+    """
     creds = get_creds(user)
     service = build("calendar", "v3", credentials=creds)
 

@@ -14,7 +14,11 @@ def search_similar_embeddings(
     stmt = (
         select(EmbeddingRecord)
         .where(EmbeddingRecord.user_id == user.id)
-        .order_by(EmbeddingRecord.message.op("<->")(embedding))
+        .order_by(
+            EmbeddingRecord.start_ts.asc(),       # сначала ближайшая дата
+            EmbeddingRecord.message.op("<->")(embedding),  # потом похожесть
+        )
+        .order_by(EmbeddingRecord.start_ts.asc())
         .limit(top_k)
     )
     with SessionLocal() as session:

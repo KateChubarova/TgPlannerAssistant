@@ -18,7 +18,7 @@ def fetch_events(user: TgUser, calendar_id: str = "primary", time_min: datetime 
     service = build("calendar", "v3", credentials=creds)
 
     if time_min is None:
-        time_min = datetime.utcnow() - timedelta(days=7)
+        time_min = datetime.utcnow() - timedelta(days=0)
     if time_max is None:
         time_max = datetime.utcnow() + timedelta(days=180)
 

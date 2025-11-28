@@ -10,7 +10,7 @@ def search_similar_embeddings(
         user: TgUser,
         embedding: List[float],
         top_k: int = 5,
-) -> list[EmbeddingRecord]:
+) -> [EmbeddingRecord]:
     stmt = (
         select(EmbeddingRecord)
         .where(EmbeddingRecord.user_id == user.id)

@@ -1,9 +1,7 @@
 import requests
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Dict
 import os
-
-from shared.models.embedding_record import EmbeddingRecord
 
 GOOGLE_SEARCH_API_KEY = os.getenv("GOOGLE_SEARCH_API_KEY")
 GOOGLE_SEARCH_CX = os.getenv("GOOGLE_SEARCH_CX")
@@ -20,9 +18,12 @@ class WebResult:
     rating: Optional[float] = None
 
 
-def enrich_event_by_location(event: EmbeddingRecord) -> list[WebResult]:
-    query = event.location
-    return simple_search(query, limit=3)
+def enrich_event_by_location(location: str) -> Dict:
+    result = simple_search(location, limit=3)
+    return {
+        "raw_location": location,
+        "info": f"Результат поиска по {result}",
+    }
 
 
 def format_location_info(results: list[WebResult]) -> str:

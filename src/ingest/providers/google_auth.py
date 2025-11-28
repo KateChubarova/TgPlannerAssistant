@@ -12,7 +12,7 @@ load_dotenv()
 
 SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 CREDENTIALS_PATH = os.getenv("WEB_GOOGLE_CREDENTIALS")
-REDIRECT_URI = "http://127.0.0.1:8000/google/oauth2callback"
+REDIRECT_URI = os.getenv("REDIRECT_URI")
 
 
 def _load_client_info() -> {str}:

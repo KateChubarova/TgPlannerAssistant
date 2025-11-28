@@ -27,7 +27,6 @@ async def google_oauth_callback(request: Request):
     - обмен authorization code на токены,
     - сохранение токенов для пользователя.
     """
-
     params = request.query_params
 
     if "error" in params:

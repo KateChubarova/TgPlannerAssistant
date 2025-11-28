@@ -76,7 +76,6 @@ def answer_with_rag(user: TgUser, user_query: str) -> str:
     - вызывает LLM с возможностью использования инструментов,
     - при необходимости обрабатывает tool-calls.
     """
-
     query_embedding = embed_text(user_query)
     rows = search_similar_embeddings(user, query_embedding, top_k=5)
 

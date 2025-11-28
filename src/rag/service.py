@@ -29,11 +29,6 @@ system_prompt = prompts["system"].format(
 
 
 def build_context_from_rows(records: list[EmbeddingRecord]) -> str:
-    """
-    Формирует текстовый контекст для RAG-ответа на основе найденных EmbeddingRecord.
-    Каждая запись конвертируется в строку с названием календаря, источником,
-    объединённым текстом и списком участников.
-    """
     parts = []
     for record in records:
         parts.append(
@@ -44,10 +39,6 @@ def build_context_from_rows(records: list[EmbeddingRecord]) -> str:
 
 
 def answer_with_location_info(tool_call, messages) -> str:
-    """
-    Обрабатывает tool-call enrich_event_by_location, вызывает внешний сервис
-    для обогащения информации о событии по локации и возвращает финальный ответ модели.
-    """
     args = json.loads(tool_call.function.arguments)
     location = args["location"]
 
@@ -68,14 +59,6 @@ def answer_with_location_info(tool_call, messages) -> str:
 
 
 def answer_with_rag(user: TgUser, user_query: str) -> str:
-    """
-    Отвечает на пользовательский запрос с помощью RAG-подхода:
-    - строит embedding запроса,
-    - ищет похожие записи в базе,
-    - формирует контекст,
-    - вызывает LLM с возможностью использования инструментов,
-    - при необходимости обрабатывает tool-calls.
-    """
     query_embedding = embed_text(user_query)
     rows = search_similar_embeddings(user, query_embedding, top_k=5)
 

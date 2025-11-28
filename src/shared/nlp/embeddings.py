@@ -10,17 +10,10 @@ client = OpenAI(api_key=OPENAI_TOKEN)
 
 
 def embed_calendar_event(event: CalendarEvent) -> List[float]:
-    """
-    Создаёт embedding-вектор для события календаря,
-    используя его текстовое представление.
-    """
     resp = client.embeddings.create(model=EMBEDDING_MODEL, input=event.to_str())
     return resp.data[0].embedding
 
 
 def embed_text(text: str) -> List[float]:
-    """
-    Генерирует embedding-вектор для произвольного текста.
-    """
     resp = client.embeddings.create(model=EMBEDDING_MODEL, input=text )
     return resp.data[0].embedding

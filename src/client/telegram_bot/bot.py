@@ -13,10 +13,6 @@ bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 
 
 def _get_message(inserted, updated, deleted) -> str:
-    """
-    Формирует текст отчёта о результатах синхронизации календаря
-    (добавленные, обновлённые и удалённые события).
-    """
     message = "Готово! ✨ Я синхронизировал твой календарь:\n"
 
     if inserted > 0:
@@ -33,10 +29,6 @@ def _get_message(inserted, updated, deleted) -> str:
 
 @bot.message_handler(commands=["start"])
 def handle_start(message: telebot.types.Message):
-    """
-    Обрабатывает команду /start: создаёт пользователя при необходимости и отправляет ссылку для авторизации в
-    Google Calendar, если токен отсутствует.
-    """
     chat_id = message.chat.id
     user_id = message.from_user.id
     with SessionLocal() as session:
@@ -55,10 +47,6 @@ def handle_start(message: telebot.types.Message):
 
 @bot.message_handler(commands=["sync"])
 def handle_sync(message: telebot.types.Message):
-    """
-    Обрабатывает команду / sync: запускает синхронизацию календаря пользователя и
-    отправляет сообщение с результатами.
-    """
     with SessionLocal() as session:
         chat_id = message.chat.id
         user_id = message.from_user.id
@@ -81,9 +69,6 @@ def handle_sync(message: telebot.types.Message):
 
 @bot.message_handler(content_types=["text"])
 def process_message(message: telebot.types.Message):
-    """
-    Обрабатывает входящие текстовые сообщения: передаёт текст в RAG и отправляет пользователю ответ.
-    """
     user_text = message.text
     user_id = message.from_user.id
 

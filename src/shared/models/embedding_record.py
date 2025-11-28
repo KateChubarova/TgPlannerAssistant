@@ -1,22 +1,22 @@
-from dataclasses import dataclass, asdict
-from datetime import datetime
-from typing import List, Optional
+from pgvector.sqlalchemy import VECTOR
+from sqlalchemy import Column, BigInteger, String, Text, TIMESTAMP, ARRAY
+
+from shared.db import Base
 
 
-@dataclass
-class EmbeddingRecord:
-    id: str
-    participants: List[str]
-    combined_text: str
-    calendar_name: str
-    updated_at: datetime
-    source: str
-    message: List[float]
-    status: str
-    location: Optional[str]
-    end_ts: Optional[datetime]
-    start_ts: Optional[datetime]
-    user_id: int
+class EmbeddingRecord(Base):
+    __tablename__ = "tg_embeddings"
 
-    def to_dict(self) -> dict:
-        return asdict(self)
+    id = Column(String, primary_key=True)
+
+    participants = Column(ARRAY(String))
+    combined_text = Column(Text)
+    calendar_name = Column(Text)
+    updated_at = Column(TIMESTAMP)
+    source = Column(Text)
+    message = Column(VECTOR)
+    status = Column(Text)
+    location = Column(Text, nullable=True)
+    end_ts = Column(TIMESTAMP, nullable=True)
+    start_ts = Column(TIMESTAMP, nullable=True)
+    user_id = Column(BigInteger)

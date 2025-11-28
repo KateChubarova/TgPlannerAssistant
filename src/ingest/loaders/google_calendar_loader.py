@@ -11,7 +11,6 @@ from shared.models.user import TgUser
 from shared.nlp.embeddings import embed_calendar_event
 
 
-#
 def rows_from_events(user: TgUser, events: Iterable[CalendarEvent]) -> List[EmbeddingRecord]:
     rows: List[EmbeddingRecord] = []
     for ev in events:

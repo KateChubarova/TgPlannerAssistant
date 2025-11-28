@@ -15,8 +15,8 @@ def search_similar_embeddings(
         select(EmbeddingRecord)
         .where(EmbeddingRecord.user_id == user.id)
         .order_by(
-            EmbeddingRecord.start_ts.asc(),       # сначала ближайшая дата
-            EmbeddingRecord.message.op("<->")(embedding),  # потом похожесть
+            EmbeddingRecord.start_ts.asc(),
+            EmbeddingRecord.message.op("<->")(embedding),
         )
         .order_by(EmbeddingRecord.start_ts.asc())
         .limit(top_k)

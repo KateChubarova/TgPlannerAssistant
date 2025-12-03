@@ -30,7 +30,7 @@ def _load_client_info() -> {str}:
 CLIENT_ID, CLIENT_SECRET, TOKEN_URI, AUTH_URI = _load_client_info()
 
 
-def _create_flow(state: str | None = None) -> Flow:
+def _create_flow(state: str = None) -> Flow:
     return Flow.from_client_secrets_file(
         CREDENTIALS_PATH,
         scopes=SCOPES,
@@ -39,7 +39,7 @@ def _create_flow(state: str | None = None) -> Flow:
     )
 
 
-def build_auth_url_for_user(user_id: int) -> str:
+def build_auth_url(user_id: int) -> str:
     flow = _create_flow()
 
     authorization_url, _ = flow.authorization_url(
@@ -59,7 +59,7 @@ def exchange_code_for_tokens(code: str, state: str) -> Credentials:
     return creds
 
 
-def get_creds(user: TgUser) -> Optional[Credentials]:
+def get_creds(user: TgUser) -> Credentials:
     creds = Credentials(
         token=user.google_access_token,
         refresh_token=user.google_refresh_token,

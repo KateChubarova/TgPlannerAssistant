@@ -14,6 +14,6 @@ def embed_calendar_event(event: CalendarEvent) -> List[float]:
     return resp.data[0].embedding
 
 
-def embed_text(text: str) -> List[float]:
-    resp = client.embeddings.create(model=EMBEDDING_MODEL, input=text )
+def embed_query(query: str) -> List[float]:
+    resp = client.embeddings.create(model=EMBEDDING_MODEL, input=query)
     return resp.data[0].embedding

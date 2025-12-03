@@ -1,12 +1,14 @@
-from shared.db import SessionLocal
+from shared.storage.db import SessionLocal
 from shared.models.user import TgUser
 
 
-def get_user(session, user_id: int) -> TgUser | None:
-    return session.get(TgUser, user_id)
+def get_user(user_id: int) -> TgUser:
+    with SessionLocal() as session:
+        user = session.get(TgUser, user_id)
+    return user
 
 
-def create_user(user_id, first_name, last_name, username):
+def create_user(user_id: int, first_name: str, last_name: str, username: str):
     with SessionLocal() as session:
         user = TgUser(
             id=user_id,
@@ -20,7 +22,7 @@ def create_user(user_id, first_name, last_name, username):
     return user
 
 
-def save_tokens(user_id, access, refresh, expiry):
+def save_tokens(user_id: id, access: str, refresh: str, expiry: str):
     with SessionLocal() as session:
         user = session.get(TgUser, user_id)
         if not user:

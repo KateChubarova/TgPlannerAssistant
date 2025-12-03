@@ -1,10 +1,10 @@
 from pgvector.sqlalchemy import VECTOR
 from sqlalchemy import Column, BigInteger, String, Text, TIMESTAMP, ARRAY
 
-from shared.db import Base
+from shared.storage.db import Base
 
 
-class EmbeddingRecord(Base):
+class Embedding(Base):
     __tablename__ = "tg_embeddings"
 
     id = Column(String, primary_key=True)

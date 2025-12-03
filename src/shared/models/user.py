@@ -1,11 +1,12 @@
 from sqlalchemy import Column, BigInteger, String, Text, TIMESTAMP, func
-from shared.db import Base
+from shared.storage.db import Base
 
 
 class TgUser(Base):
     __tablename__ = "tg_users"
 
     id = Column(BigInteger, primary_key=True)
+
     first_name = Column(String)
     last_name = Column(String)
     username = Column(String)

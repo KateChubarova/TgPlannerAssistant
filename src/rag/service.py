@@ -4,14 +4,15 @@ from datetime import datetime
 
 import tzlocal
 from openai import OpenAI
+from openai.types.chat import ChatCompletionMessage
 
-from shared.models.embedding_record import EmbeddingRecord
+from rag.prompts.loader import load_yaml_prompts
+from rag.tools.location_tool import location_tool
+from shared.models.embedding import Embedding
 from shared.models.user import TgUser
-from shared.nlp.embeddings import embed_text
-from shared.nlp.prompts.loader import load_yaml_prompts
+from shared.nlp.embeddings import embed_query
 from shared.storage.embeddings_repo import search_similar_embeddings
-from tools.location_tool import location_tool
-from web_search.client import enrich_event_by_location
+from sources.web_search.client import enrich_event_by_location
 
 OPENAI_TOKEN = os.getenv("OPENAI_API_KEY")
 CHAT_MODEL = os.getenv("CHAT_MODEL")
@@ -28,7 +29,7 @@ system_prompt = prompts["system"].format(
 )
 
 
-def build_context_from_rows(records: list[EmbeddingRecord]) -> str:
+def build_context(records: list[Embedding]) -> str:
     parts = []
     for record in records:
         parts.append(
@@ -38,31 +39,11 @@ def build_context_from_rows(records: list[EmbeddingRecord]) -> str:
     return "\n".join(parts) if parts else "Нет релевантных записей календаря."
 
 
-def answer_with_location_info(tool_call, messages) -> str:
-    args = json.loads(tool_call.function.arguments)
-    location = args["location"]
+def answer_with_rag(user: TgUser, user_query: str, top_k=5) -> str | None:
+    query_embedding = embed_query(user_query)
+    rows = search_similar_embeddings(user, query_embedding, top_k=top_k)
 
-    tool_result = enrich_event_by_location(location=location)
-    messages.append({
-        "role": "tool",
-        "tool_call_id": tool_call.id,
-        "name": "enrich_event_by_location",
-        "content": json.dumps(tool_result, ensure_ascii=False),
-    })
-
-    final = client.chat.completions.create(
-        model=CHAT_MODEL,
-        messages=messages,
-    )
-
-    return final.choices[0].message.content
-
-
-def answer_with_rag(user: TgUser, user_query: str) -> str:
-    query_embedding = embed_text(user_query)
-    rows = search_similar_embeddings(user, query_embedding, top_k=5)
-
-    context = build_context_from_rows(rows)
+    context = build_context(rows)
 
     messages = [
         {"role": "system", "content": system_prompt},
@@ -87,3 +68,23 @@ def answer_with_rag(user: TgUser, user_query: str) -> str:
             fn_name = tool_call.function.name
             if fn_name == "enrich_event_by_location":
                 return answer_with_location_info(tool_call, messages)
+
+
+def answer_with_location_info(tool_call: ChatCompletionMessage, messages: [dict]) -> str:
+    args = json.loads(tool_call.function.arguments)
+    location = args["location"]
+
+    tool_result = enrich_event_by_location(location=location)
+    messages.append({
+        "role": "tool",
+        "tool_call_id": tool_call.id,
+        "name": "enrich_event_by_location",
+        "content": json.dumps(tool_result, ensure_ascii=False),
+    })
+
+    final = client.chat.completions.create(
+        model=CHAT_MODEL,
+        messages=messages,
+    )
+
+    return final.choices[0].message.content

@@ -1,5 +1,6 @@
 import os
 import telebot
+from telebot import types
 
 from sources.google_calendar.google_auth import build_auth_url
 from rag.service import answer_with_rag
@@ -10,6 +11,9 @@ from sources.google_calendar.google_calendar import load_all_events
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
+
+LOGIN_BTN = "🔑 Залогиниться в Google Calendar"
+SYNC_BTN = "🔄 Синхронизировать календарь"
 
 
 @bot.message_handler(commands=["start"])
@@ -25,6 +29,18 @@ def handle_start(message: telebot.types.Message):
         chat, and the command that triggered the handler.
     """
     chat_id = message.chat.id
+    bot.send_message(
+        chat_id,
+        "Привет! Я — твой ассистент-планировщик. Я могу подсказать, что у тебя запланировано, во сколько встреча,"
+        " где она проходит и многое другое. Сначала войди в Google Calendar, а затем синхронизируй календарь — после "
+        "этого я смогу работать с твоим расписанием.",
+        reply_markup=get_sync_bottom_menu(True)
+    )
+
+
+@bot.message_handler(func=lambda m: m.text == LOGIN_BTN)
+def login_button_handler(message):
+    chat_id = message.chat.id
     user_id = message.from_user.id
 
     user = get_user(user_id)
@@ -36,22 +52,22 @@ def handle_start(message: telebot.types.Message):
             message.from_user.username)
     if not user.google_access_token:
         auth_url = build_auth_url(user_id)
-        bot.send_message(chat_id, f"Используй эту ссылку для логина в Google Calendar {auth_url} \n\n"
-                                  f"Затем используй команду /sync")
+        bot.send_message(chat_id, f"Используй эту ссылку для логина в Google Calendar {auth_url}")
 
 
-@bot.message_handler(commands=["sync"])
-def handle_sync(message: telebot.types.Message):
+@bot.message_handler(func=lambda m: m.text == SYNC_BTN)
+def sync_button_handler(message):
     """
-    Handle the /sync command to synchronize a user's Google Calendar.
+    Handle synchronization requests triggered by the "Sync Calendar" button.
 
-    This function retrieves the user's Google Calendar events, updates local
-    storage with inserted/updated/deleted entries, and sends a summary
-    message back to the user.
+    This function retrieves the user's Google Calendar events, updates the local
+    storage with inserted, updated, and deleted items, and sends a summary
+    message back to the user. If synchronization fails, an explanatory error
+    message is returned.
 
     Args:
-        message (telebot.types.Message):  The Telegram message object containing user and chat information,
-            including the command that triggered synchronization.
+        message (telebot.types.Message): The incoming Telegram message generated when the user presses
+                the synchronization button.
     """
     chat_id = message.chat.id
     user_id = message.from_user.id
@@ -60,7 +76,8 @@ def handle_sync(message: telebot.types.Message):
         inserted, updated, deleted = load_all_events(user)
         bot.send_message(
             chat_id,
-            get_message(inserted, updated, deleted)
+            get_message(inserted, updated, deleted),
+            reply_markup=get_sync_bottom_menu()
         )
 
     except Exception as e:
@@ -69,10 +86,12 @@ def handle_sync(message: telebot.types.Message):
             chat_id,
             "Не удалось синхронизировать календарь 😔\n"
             "Проверь настройки и попробуй ещё раз.",
+            reply_markup=get_sync_bottom_menu()
         )
 
 
-@bot.message_handler(content_types=["text"])
+@bot.message_handler(content_types=["text"],
+                     func=lambda m: m.text not in [LOGIN_BTN, SYNC_BTN])
 def process_message(message: telebot.types.Message):
     """
     Process incoming text messages and generate a response using the RAG system.
@@ -97,8 +116,31 @@ def process_message(message: telebot.types.Message):
     bot.send_message(
         message.chat.id,
         reply,
-        parse_mode="Markdown"
+        parse_mode="Markdown",
+        reply_markup=get_sync_bottom_menu()
     )
+
+
+def get_sync_bottom_menu(is_login: bool = False) -> types.ReplyKeyboardMarkup:
+    """
+    Create a reply keyboard for calendar-related actions.
+
+    Args:
+        is_login (bool): Indicates whether the user needs to log in.
+            If True, the "Log in to Google Calendar" button is shown.
+            If False, only the synchronization button is displayed.
+
+    Returns:
+        ReplyKeyboardMarkup: A Telegram reply keyboard with one or two
+        action buttons depending on the authentication state.
+    """
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    if is_login:
+        login_to_calendar = types.KeyboardButton("🔑 Залогиниться в Google Calendar")
+        keyboard.add(login_to_calendar)
+    sync_calendar = types.KeyboardButton("🔄 Синхронизировать календарь")
+    keyboard.add(sync_calendar)
+    return keyboard
 
 
 bot.infinity_polling()

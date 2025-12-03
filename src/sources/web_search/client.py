@@ -19,6 +19,19 @@ class WebResult:
 
 
 def enrich_event_by_location(location: str) -> Dict:
+    """
+    Enrich event information using a location-based web search.
+
+    This function performs a simple web search for the provided location and
+    wraps the results into a structured dictionary that can be returned to
+    the language model as a tool output.
+
+    Args:
+        location (str): The location string to search for additional information.
+
+    Return:
+        Dict: A dictionary containing the raw location and a formatted search result.
+    """
     result = simple_search(location, limit=3)
     return {
         "raw_location": location,
@@ -27,6 +40,20 @@ def enrich_event_by_location(location: str) -> Dict:
 
 
 def format_location_info(results: list[WebResult]) -> str:
+    """
+    Format detailed information about a location into a readable text block.
+
+    This function takes a list of web search results, selects the most relevant
+    one, and constructs a human-readable description including URL, snippet,
+    address, phone, and rating if available.
+
+    Args:
+        results (list[WebResult]): A list of web search result objects.
+
+    Return:
+        str: A formatted description of the top search result, or a fallback message
+            if no results are available.
+    """
     if not results:
         return "Дополнительной информации о месте не нашлось."
 
@@ -46,6 +73,19 @@ def format_location_info(results: list[WebResult]) -> str:
 
 
 def simple_search(query: str, limit: int = 3) -> List[WebResult]:
+    """
+    Perform a simple Google Custom Search query and return structured results.
+
+    This function sends a request to the Google Custom Search API, parses the
+    response, and converts search results into WebResult dataclass instances.
+
+    Args:
+        query (str): The text query to search for.
+        limit (int): The maximum number of results to return (default is 3).
+
+    Return:
+        List[WebResult]: A list of structured web results limited to the specified amount.
+    """
     resp = requests.get(
         GOOGLE_SEARCH_URL,
         params={

@@ -14,6 +14,16 @@ bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 
 @bot.message_handler(commands=["start"])
 def handle_start(message: telebot.types.Message):
+    """
+    Handle the /start command in the Telegram bot.
+
+    This function initializes a user in the system and sends an authorization link for Google Calendar if the user
+    has not authenticated yet.
+
+    Args:
+        message(telebot.types.Message): The Telegram message object that contains metadata about the user,
+        chat, and the command that triggered the handler.
+    """
     chat_id = message.chat.id
     user_id = message.from_user.id
 
@@ -32,6 +42,17 @@ def handle_start(message: telebot.types.Message):
 
 @bot.message_handler(commands=["sync"])
 def handle_sync(message: telebot.types.Message):
+    """
+    Handle the /sync command to synchronize a user's Google Calendar.
+
+    This function retrieves the user's Google Calendar events, updates local
+    storage with inserted/updated/deleted entries, and sends a summary
+    message back to the user.
+
+    Args:
+        message (telebot.types.Message):  The Telegram message object containing user and chat information,
+            including the command that triggered synchronization.
+    """
     chat_id = message.chat.id
     user_id = message.from_user.id
     user = get_user(user_id)
@@ -53,6 +74,17 @@ def handle_sync(message: telebot.types.Message):
 
 @bot.message_handler(content_types=["text"])
 def process_message(message: telebot.types.Message):
+    """
+    Process incoming text messages and generate a response using the RAG system.
+
+    This function passes the user's message into the retrieval-augmented
+    generation pipeline to produce a reply, then sends that reply back
+    to the user.
+
+    Args:
+        message (telebot.types.Message): The Telegram message object containing the text sent by the user
+            along with metadata such as user ID and chat ID.
+    """
     user_text = message.text
     user_id = message.from_user.id
 

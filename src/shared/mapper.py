@@ -8,6 +8,20 @@ from shared.nlp.embeddings import embed_calendar_event
 
 
 def get_date_time(timestamp: dict) -> date | None:
+    """
+    Extract a datetime or date value from a timestamp dictionary.
+
+    This function reads a timestamp dictionary containing either a `dateTime`
+    or a `date` field and converts it into a Python datetime/date object.
+
+    Args:
+        timestamp (dict): A dictionary containing either 'dateTime' or 'date'
+            in ISO 8601 string format.
+
+    Return:
+        date: A datetime object when 'dateTime' is present, a date object
+            when only 'date' is present, or None if neither key exists.
+    """
     if 'dateTime' in timestamp:
         return datetime.fromisoformat(timestamp['dateTime'])
     elif 'date' in timestamp:
@@ -19,6 +33,21 @@ def map_event_to_embedding(
         event: CalendarEvent,
         vec: List[float]
 ) -> Embedding:
+    """
+    Convert a calendar event into an Embedding model instance.
+
+    This function takes user information, a calendar event, and an embedding vector,
+    and maps them into a unified Embedding object suitable for storage and search.
+
+    Args:
+        user (TgUser): The Telegram user who owns the event.
+        event (CalendarEvent): The calendar event to be transformed.
+        vec (List[float]): The embedding vector representing the event.
+
+    Return:
+        Embedding: A fully constructed Embedding object containing event metadata
+            and its semantic vector.
+    """
     return Embedding(
         id=event.id,
         participants=event.participants,
@@ -36,6 +65,19 @@ def map_event_to_embedding(
 
 
 def map_events(user: TgUser, events: Iterable[CalendarEvent]) -> List[Embedding]:
+    """
+    Convert multiple calendar events into embedding objects.
+
+    This function iterates through a collection of calendar events, embeds each one,
+    and returns a list of Embedding model instances.
+
+    Args:
+        user (TgUser): The Telegram user to whom the events belong.
+        events (Iterable[CalendarEvent]): A collection of calendar events to embed.
+
+    Return:
+        List[Embedding]: A list of embedding objects representing the provided events.
+    """
     embeddings: List[Embedding] = []
     for event in events:
         embedding = map_event_to_embedding(user, event, embed_calendar_event(event))

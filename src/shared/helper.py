@@ -1,4 +1,19 @@
 def get_message(inserted: int, updated: int, deleted: int) -> str:
+    """
+    Build a summary message for calendar synchronization results.
+
+    This function formats a human-readable text message that reports how many
+    calendar events were inserted, updated, or deleted during a synchronization
+    operation.
+
+    Args:
+        inserted (int): Number of newly added calendar events.
+        updated (int): Number of events that were modified.
+        deleted (int): Number of events that were removed.
+
+    Return:
+        str: A formatted message summarizing the synchronization results.
+    """
     message = "Готово! ✨ Я синхронизировал твой календарь:\n"
 
     if inserted > 0:

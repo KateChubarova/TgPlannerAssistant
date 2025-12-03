@@ -16,6 +16,20 @@ TOKEN_PATH = os.getenv("GOOGLE_TOKEN")
 
 
 def load_all_events(user: TgUser) -> {int}:
+    """
+    Load all calendar events for a user and synchronize them with the database.
+
+    This function fetches events from the user's Google Calendar, maps them into
+    embedding objects, and then inserts, updates, or deletes records in the
+    database to reflect the current state of the calendar.
+
+    Args:
+        user (TgUser): The Telegram user whose Google Calendar events should be synchronized.
+
+    Return:
+        tuple[int, int, int]: A tuple containing the number of inserted, updated,
+            and deleted records in that order.
+    """
     events = fetch_events(user)
     batch = map_events(user, events)
     if not batch:
@@ -54,6 +68,24 @@ def load_all_events(user: TgUser) -> {int}:
 
 def fetch_events(user: TgUser, calendar_id: str = "primary", time_min: datetime = None,
                  time_max: datetime = None, max_results: int = 2500) -> [CalendarEvent]:
+    """
+    Fetch events from a user's Google Calendar within a given time range.
+
+    This function calls the Google Calendar API using the user's credentials and
+    yields CalendarEvent objects for each event found in the specified calendar
+    and time window.
+
+    Args:
+        user (TgUser): The Telegram user whose Google Calendar should be queried.
+        calendar_id (str): The ID of the calendar to fetch events from, default is "primary".
+        time_min (datetime): The start of the time range to query. If None, uses the current UTC time.
+        time_max (datetime): The end of the time range to query. If None, uses 180 days from now.
+        max_results (int): The maximum number of events to return from the API.
+
+    Return:
+        list[CalendarEvent]: A list of CalendarEvent objects representing the events
+            retrieved from the Google Calendar API.
+    """
     creds = get_creds(user)
     service = build("calendar", "v3", credentials=creds)
 

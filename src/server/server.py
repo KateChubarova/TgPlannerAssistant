@@ -8,12 +8,37 @@ app = FastAPI()
 
 
 @app.get("/")
-def read_root():
+def read_root() -> dict:
+    """
+    Return the basic health status of the FastAPI service.
+
+    This endpoint is used to verify that the API is running and responding
+    correctly by returning a simple JSON payload.
+
+    Return:
+        dict: A dictionary containing a status flag and a message confirming
+            that the FastAPI server is operational.
+    """
     return {"status": "ok", "message": "FastAPI works!"}
 
 
 @app.get("/google/oauth2callback", response_class=HTMLResponse)
 async def google_oauth_callback(request: Request) -> HTMLResponse:
+    """
+    Handle the OAuth2 callback from Google after user authentication.
+
+    This endpoint processes the query parameters returned by Google, validates
+    the OAuth2 state, exchanges the authorization code for access and refresh
+    tokens, and saves them for the corresponding user.
+
+    Args:
+        request (Request): The FastAPI request object containing the query
+            parameters returned by Google's OAuth2 redirect.
+
+    Return:
+        HTMLResponse: An HTML response indicating whether the authentication
+            process was successful or failed due to an error.
+    """
     params = request.query_params
 
     if "error" in params:

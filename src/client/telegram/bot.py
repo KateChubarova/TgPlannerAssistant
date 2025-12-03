@@ -40,6 +40,16 @@ def handle_start(message: telebot.types.Message):
 
 @bot.message_handler(func=lambda m: m.text == LOGIN_BTN)
 def login_button_handler(message):
+    """
+    Handle the Google Calendar login button press.
+
+    This handler initializes the user if necessary and sends an authorization
+    link for Google Calendar when the user has not yet granted access.
+
+    Args:
+        message (telebot.types.Message): The Telegram message triggered by
+            pressing the login button.
+    """
     chat_id = message.chat.id
     user_id = message.from_user.id
 

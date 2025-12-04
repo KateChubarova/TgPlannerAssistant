@@ -153,4 +153,5 @@ def get_sync_bottom_menu(is_login: bool = False) -> types.ReplyKeyboardMarkup:
     return keyboard
 
 
-bot.infinity_polling()
+def run():
+    bot.infinity_polling(skip_pending=True)

@@ -11,7 +11,7 @@ def main():
     Base.metadata.create_all(bind=engine)
     bot_thread = Thread(target=run, daemon=True)
     bot_thread.start()
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8020)
 
 
 if __name__ == "__main__":

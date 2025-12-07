@@ -2,16 +2,13 @@ name: Move Trello Card to Done
 
 on:
   pull_request:
-    types: [closed]   # Срабатываем на ЛЮБОЕ закрытие PR
+    types: [closed]
+    branches:
+      - main
 
 jobs:
   move-card:
-    # Запускаем job только если:
-    # 1) PR смержен
-    # 2) целевая ветка — main
-    if: >
-      github.event.pull_request.merged == true &&
-      github.event.pull_request.base.ref == 'main'
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:

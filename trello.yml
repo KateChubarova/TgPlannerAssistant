@@ -1,4 +1,4 @@
-name: Move Trello Card to Done on PR Merge
+name: Move Trello Card to Done
 
 on:
   pull_request:

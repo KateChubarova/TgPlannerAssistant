@@ -7,7 +7,7 @@ from shared.models.user import TgUser
 from shared.nlp.embeddings import embed_calendar_event
 
 
-def get_date_time(timestamp: dict) -> date | None:
+def map_date_time(timestamp: dict) -> date | None:
     """
     Extract a datetime or date value from a timestamp dictionary.
 
@@ -58,8 +58,8 @@ def map_event_to_embedding(
         status=event.status,
         message=vec,
         location=event.location,
-        start_ts=get_date_time(event.start_ts),
-        end_ts=get_date_time(event.end_ts),
+        start_ts=map_date_time(event.start_ts),
+        end_ts=map_date_time(event.end_ts),
         user_id=user.id
     )
 

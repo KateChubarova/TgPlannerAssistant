@@ -12,7 +12,6 @@ from shared.models.calendar_event import CalendarEvent
 from shared.models.user import TgUser
 
 CREDENTIALS_PATH = os.getenv("GOOGLE_CREDENTIALS")
-TOKEN_PATH = os.getenv("GOOGLE_TOKEN")
 
 
 def load_all_events(user: TgUser) -> {int}:

@@ -1,0 +1,70 @@
+name: Move Trello Card to Done on PR Merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  move-card:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Extract card number from PR title
+        id: extract
+        run: |
+          TITLE="${{ github.event.pull_request.title }}"
+          echo "PR Title: $TITLE"
+
+          if [[ "$TITLE" =~ ^([0-9]+) ]]; then
+            NUM="${BASH_REMATCH[1]}"
+            echo "Found number: $NUM"
+            echo "num=$NUM" >> $GITHUB_OUTPUT
+          else
+            echo "No number found, skipping"
+            echo "num=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Stop if number not found
+        if: steps.extract.outputs.num == ''
+        run: echo "No matching Trello card"
+
+      - name: Find and move Trello card
+        if: steps.extract.outputs.num != ''
+        run: |
+          NUM=${{ steps.extract.outputs.num }}
+          echo "Searching for card starting with number: $NUM"
+
+          KEY="${{ secrets.TRELLO_KEY }}"
+          TOKEN="${{ secrets.TRELLO_TOKEN }}"
+          DONE_ID="${{ secrets.TRELLO_DONE_LIST_ID }}"
+          
+          SEARCH_URL="https://api.trello.com/1/search"
+          
+          RESP=$(curl -sG "$SEARCH_URL" \
+            --data-urlencode "query=$NUM" \
+            --data-urlencode "modelTypes=cards" \
+            --data-urlencode "card_fields=name,id" \
+            --data-urlencode "key=$KEY" \
+            --data-urlencode "token=$TOKEN")
+
+          echo "Search result: $RESP"
+
+          CARD_ID=$(echo "$RESP" | jq -r ".cards[] | select(.name | startswith(\"$NUM \")) | .id" | head -n 1)
+
+          if [[ -z "$CARD_ID" ]]; then
+            echo "No matching card found."
+            exit 0
+          fi
+
+          echo "Found card ID: $CARD_ID. Moving to Done..."
+
+          curl -s -X PUT \
+            "https://api.trello.com/1/cards/$CARD_ID" \
+            --data-urlencode "idList=$DONE_ID" \
+            --data-urlencode "key=$KEY" \
+            --data-urlencode "token=$TOKEN"
+
+          echo "Card moved to Done!"

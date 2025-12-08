@@ -8,6 +8,9 @@ services:
       - 8020:8020
     env_file:
       - .env
+    environment:
+      DATABASE_URL: postgresql://k.chubarava:12345@db:5432/postgres
+    command: bash -c "alembic upgrade head && python src/main.py"
 
   db:
     image: ankane/pgvector:latest

@@ -14,6 +14,7 @@ class CalendarEvent:
     start_ts: dict
     end_ts: dict
     status: str
+    # updated: str
 
     def to_str(self) -> str:
         parts: List[str] = []

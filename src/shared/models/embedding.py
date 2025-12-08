@@ -20,3 +20,4 @@ class Embedding(Base):
     end_ts = Column(TIMESTAMP, nullable=True)
     start_ts = Column(TIMESTAMP, nullable=True)
     user_id = Column(BigInteger)
+    # updated = Column(TIMESTAMP, nullable=True)

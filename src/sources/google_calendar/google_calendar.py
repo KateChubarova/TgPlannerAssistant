@@ -113,5 +113,6 @@ def fetch_events(user: TgUser, calendar_id: str = "primary", time_min: datetime 
             participants=[a.get("email") or a.get("displayName") or "" for a in item.get("attendees", [])],
             start_ts=item.get("start"),
             end_ts=item.get("end"),
-            status="confirmed"
+            status="confirmed",
+            # updated=item.get("updated")
         )

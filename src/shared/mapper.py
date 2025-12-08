@@ -1,13 +1,15 @@
 from datetime import datetime, date
 from typing import List, Iterable
 
+from pgvector import Vector
+
 from shared.models.calendar_event import CalendarEvent
 from shared.models.embedding import Embedding
 from shared.models.user import TgUser
 from shared.nlp.embeddings import embed_calendar_event
 
 
-def map_date_time(timestamp: dict) -> date | None:
+def map_date_time(timestamp: dict) -> date|None:
     """
     Extract a datetime or date value from a timestamp dictionary.
 
@@ -24,14 +26,14 @@ def map_date_time(timestamp: dict) -> date | None:
     """
     if 'dateTime' in timestamp:
         return datetime.fromisoformat(timestamp['dateTime'])
-    elif 'date' in timestamp:
+    if 'date' in timestamp:
         return datetime.fromisoformat(timestamp['date'])
 
 
 def map_event_to_embedding(
         user: TgUser,
         event: CalendarEvent,
-        vec: List[float]
+        vec: Vector
 ) -> Embedding:
     """
     Convert a calendar event into an Embedding model instance.
@@ -60,7 +62,8 @@ def map_event_to_embedding(
         location=event.location,
         start_ts=map_date_time(event.start_ts),
         end_ts=map_date_time(event.end_ts),
-        user_id=user.id
+        user_id=user.id,
+        # updated=datetime.fromisoformat(event.updated)
     )
 
 

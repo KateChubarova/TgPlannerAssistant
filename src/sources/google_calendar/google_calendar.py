@@ -53,12 +53,6 @@ def load_all_events(user: TgUser) -> tuple[int, int, int]:
             if not row:
                 continue
 
-            print(type(event.updated))
-            print(type(row.updated))
-
-            print("db:", row.updated, repr(row.updated), row.updated.tzinfo)
-            print("gc:", event.updated, repr(event.updated), event.updated.tzinfo)
-
             if row.updated is None or event.updated is None:
                 ids_to_update.add(event.id)
             elif event.updated > row.updated:
@@ -115,7 +109,6 @@ def fetch_events(user: TgUser, calendar_id: str = "primary", time_min: datetime 
             retrieved from the Google Calendar API.
     """
     creds = get_creds(user)
-    print(creds.token)
     service = build("calendar", "v3", credentials=creds)
 
     if time_min is None:

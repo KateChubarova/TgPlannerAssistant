@@ -56,7 +56,6 @@ def create_flow(state: str = None) -> Flow:
         Flow: An initialized OAuth2 Flow object ready to generate auth URLs
             or exchange authorization codes.
     """
-    print(REDIRECT_URI)
     return Flow.from_client_secrets_file(
         CREDENTIALS_PATH,
         scopes=SCOPES,

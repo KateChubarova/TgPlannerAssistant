@@ -26,7 +26,6 @@ The project includes server components, shared utilities, migration tooling, and
 ├── .idea/ # IDE configuration (PyCharm/IntelliJ)
 ├── .venv/ # Local Python virtual environment (ignored)
 │
-├── db/ # Local database files (e.g., SQLite or docker volume mount)
 ├── migrations/ # Alembic migration scripts
 │
 ├── src/

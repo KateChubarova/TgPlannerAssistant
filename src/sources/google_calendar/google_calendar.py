@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, timedelta
 
+from dateutil import parser
 from googleapiclient.discovery import build
 from sqlalchemy import select, delete
 
@@ -14,7 +15,7 @@ from shared.models.user import TgUser
 CREDENTIALS_PATH = os.getenv("GOOGLE_CREDENTIALS")
 
 
-def load_all_events(user: TgUser) -> {int}:
+def load_all_events(user: TgUser) -> tuple[int, int, int]:
     """
     Load all calendar events for a user and synchronize them with the database.
 
@@ -30,39 +31,61 @@ def load_all_events(user: TgUser) -> {int}:
             and deleted records in that order.
     """
     events = fetch_events(user)
-    batch = map_events(user, events)
-    if not batch:
+
+    if not events:
         raise ValueError("Календарь пуст или не удалось извлечь события")
 
-    incoming_ids = {event.id for event in batch}
+    incoming_ids = {e.id for e in events}
 
     with SessionLocal() as session:
-        existing_ids = set(
-            session.scalars(
-                select(Embedding.id)
-                .where(Embedding.user_id == user.id)
-            )
-        )
+        existing_rows = session.scalars(
+            select(Embedding).where(Embedding.user_id == user.id)
+        ).all()
 
-        to_insert = [row for row in batch if row.id not in existing_ids]
-        to_update = [row for row in batch if row.id in existing_ids]
-        to_delete = existing_ids - incoming_ids
+        existing_by_id = {row.id: row for row in existing_rows}
+        existing_ids = set(existing_by_id.keys())
+
+        ids_to_insert = incoming_ids - existing_ids
+        ids_to_update: set[str] = set()
+
+        for event in events:
+            row = existing_by_id.get(event.id)
+            if not row:
+                continue
+
+            if row.updated is None or event.updated is None:
+                ids_to_update.add(event.id)
+            elif event.updated > row.updated:
+                ids_to_update.add(event.id)
+
+        ids_to_delete = existing_ids - incoming_ids
+
+        ids_need_mapping = ids_to_insert | ids_to_update
+        events_to_map = [e for e in events if e.id in ids_need_mapping]
+
+        batch: list[Embedding] = map_events(user, events_to_map)
+
+        to_insert = [row for row in batch if row.id in ids_to_insert]
+        to_update = [row for row in batch if row.id in ids_to_update]
 
         if to_insert:
             session.add_all(to_insert)
 
         if to_update:
-            for update in to_update:
-                session.merge(update)
+            for row in to_update:
+                session.merge(row)
 
-        if to_delete:
+        if ids_to_delete:
             session.execute(
-                delete(Embedding)
-                .where(Embedding.id.in_(to_delete))
+                delete(Embedding).where(
+                    Embedding.user_id == user.id,
+                    Embedding.id.in_(ids_to_delete),
+                )
             )
+
         session.commit()
 
-    return len(to_insert), len(to_update), len(to_delete)
+    return len(to_insert), len(to_update), len(ids_to_delete)
 
 
 def fetch_events(user: TgUser, calendar_id: str = "primary", time_min: datetime = None,
@@ -102,8 +125,8 @@ def fetch_events(user: TgUser, calendar_id: str = "primary", time_min: datetime 
         maxResults=max_results,
     ).execute()
 
-    for item in events_result.get("items", []):
-        yield CalendarEvent(
+    return [
+        CalendarEvent(
             id=item.get("id"),
             source="google",
             calendar=calendar_id,
@@ -113,5 +136,8 @@ def fetch_events(user: TgUser, calendar_id: str = "primary", time_min: datetime 
             participants=[a.get("email") or a.get("displayName") or "" for a in item.get("attendees", [])],
             start_ts=item.get("start"),
             end_ts=item.get("end"),
-            status="confirmed"
+            status="confirmed",
+            updated=parser.isoparse(item.get("updated"))
         )
+        for item in events_result.get("items", [])
+    ]

@@ -25,4 +25,7 @@ def get_message(inserted: int, updated: int, deleted: int) -> str:
     if deleted > 0:
         message += f"• ➖ Убрал: {deleted}\n"
 
+    if inserted == 0 and updated == 0 and deleted == 0:
+        message += "✨ Никаких изменений не было — всё уже актуально!\n"
+
     return message

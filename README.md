@@ -13,6 +13,7 @@
 </p>
 
 # Tg-Planner-Assistant
+🔗 **https://t.me/chubakaGPT_bot**
 
 Tg-Planner-Assistant is a Telegram-based assistant that uses a Retrieval-Augmented Generation (RAG) pipeline and a FastAPI backend to process user requests, generate responses, and manage embeddings.
 The project includes server components, shared utilities, migration tooling, and deployment configuration using Docker.

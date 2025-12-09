@@ -70,7 +70,18 @@ The recommended way to run the project is via **Docker Compose**.
 
 ---
 
-### **1️⃣ Prerequisites**
+### **1️⃣ Send your Google email**
+
+Send the **Google email address that has an active Google Calendar** to one of the following contacts:
+
+- 📧 **katsiaryna.chubarava@innowise.com**
+- 💬 Telegram: **@k_chubaka**
+
+This email is required to grant access to Google Calendar and complete the integration setup.
+
+---
+
+### **2️⃣ Prerequisites**
 
 - **Docker**
 - **Docker Compose v2+** (or Docker Desktop)
@@ -78,14 +89,14 @@ The recommended way to run the project is via **Docker Compose**.
 
 ---
 
-### **2️⃣ Clone the repository**
+### **3️⃣ Clone the repository**
 
 ```bash
 git clone https://github.com/katsiarynach/Tg-Planner-Assistant.git Tg-Planner-Assistant
 cd Tg-Planner-Assistant
 ```
 
-### **3️⃣ Configure environment**
+### **4️⃣ Configure environment**
 
 ```env
 # Create .env in the project root (next to compose.yaml)
@@ -151,7 +162,7 @@ GOOGLE_SEARCH_URL=
 credentials.json      # Backend / service account credentials
 web_credentials.json  # OAuth client credentials
 ````
-### **4️⃣ Build and run with Docker**
+### **5️⃣ Build and run with Docker**
 
 ```bash
 # From the project root:

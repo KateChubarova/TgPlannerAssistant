@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import List, Optional
 
 
@@ -14,7 +15,7 @@ class CalendarEvent:
     start_ts: dict
     end_ts: dict
     status: str
-    updated: str
+    updated: datetime
 
     def to_str(self) -> str:
         parts: List[str] = []

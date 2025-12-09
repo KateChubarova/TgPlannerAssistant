@@ -23,6 +23,7 @@ def create_user(user_id: int, first_name: str, last_name: str, username: str):
 
 
 def save_tokens(user_id: id, access: str, refresh: str, expiry: str):
+    print("save tokens" + access + " " + refresh)
     with SessionLocal() as session:
         user = session.get(TgUser, user_id)
         if not user:

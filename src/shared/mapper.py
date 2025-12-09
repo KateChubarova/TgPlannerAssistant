@@ -63,7 +63,7 @@ def map_event_to_embedding(
         start_ts=map_date_time(event.start_ts),
         end_ts=map_date_time(event.end_ts),
         user_id=user.id,
-        updated=datetime.fromisoformat(event.updated)
+        updated=event.updated
     )
 
 

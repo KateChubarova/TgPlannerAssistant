@@ -13,7 +13,7 @@ class TgUser(Base):
 
     google_access_token = Column(Text)
     google_refresh_token = Column(Text)
-    token_expiry = Column(TIMESTAMP)
+    token_expiry = Column(TIMESTAMP(timezone=True))
 
-    created_at = Column(TIMESTAMP, server_default=func.now())
-    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())

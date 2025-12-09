@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, timedelta
 
+from dateutil import parser
 from googleapiclient.discovery import build
 from sqlalchemy import select, delete
 
@@ -51,6 +52,12 @@ def load_all_events(user: TgUser) -> tuple[int, int, int]:
             row = existing_by_id.get(event.id)
             if not row:
                 continue
+
+            print(type(event.updated))
+            print(type(row.updated))
+
+            print("db:", row.updated, repr(row.updated), row.updated.tzinfo)
+            print("gc:", event.updated, repr(event.updated), event.updated.tzinfo)
 
             if row.updated is None or event.updated is None:
                 ids_to_update.add(event.id)
@@ -108,6 +115,7 @@ def fetch_events(user: TgUser, calendar_id: str = "primary", time_min: datetime 
             retrieved from the Google Calendar API.
     """
     creds = get_creds(user)
+    print(creds.token)
     service = build("calendar", "v3", credentials=creds)
 
     if time_min is None:
@@ -136,7 +144,7 @@ def fetch_events(user: TgUser, calendar_id: str = "primary", time_min: datetime 
             start_ts=item.get("start"),
             end_ts=item.get("end"),
             status="confirmed",
-            updated=item.get("updated")
+            updated=parser.isoparse(item.get("updated"))
         )
         for item in events_result.get("items", [])
     ]

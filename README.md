@@ -28,7 +28,6 @@ The project includes server components, shared utilities, migration tooling, and
 │
 ├── db/ # Local database files (e.g., SQLite or docker volume mount)
 ├── migrations/ # Alembic migration scripts
-├── shared/ # Shared logic or constants (outside src/)
 │
 ├── src/
 │ ├── client/ # Telegram bot client logic

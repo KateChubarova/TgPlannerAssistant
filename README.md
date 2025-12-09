@@ -85,7 +85,7 @@ This email is required to grant access to Google Calendar and complete the integ
 
 - **Docker**
 - **Docker Compose v2+** (or Docker Desktop)
-- *(Optional)* **Python 3.12** + `pip` — for running locally without Docker
+- **Python 3.12**
 
 ---
 

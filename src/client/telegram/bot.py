@@ -65,7 +65,9 @@ def login_button_handler(message):
     if not user.google_access_token:
         auth_url = build_auth_url(user_id)
         bot.send_message(
-            chat_id, f"Используй эту ссылку для логина в Google Calendar {auth_url}"
+            chat_id,
+            f'Авторизуйся в Google Calendar по ссылке: <a href="{auth_url}">Войти</a>',
+            parse_mode="HTML",
         )
 
 

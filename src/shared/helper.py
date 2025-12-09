@@ -14,7 +14,6 @@ def get_message(inserted: int, updated: int, deleted: int) -> str:
     Return:
         str: A formatted message summarizing the synchronization results.
     """
-
     message = "Готово! ✨ Я синхронизировал твой календарь:\n"
 
     if inserted > 0:
@@ -30,4 +29,3 @@ def get_message(inserted: int, updated: int, deleted: int) -> str:
         message += "✨ Никаких изменений не было — всё уже актуально!\n"
 
     return message
-

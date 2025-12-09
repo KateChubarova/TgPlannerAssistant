@@ -215,6 +215,4 @@ deploy_key.pub
 gha_deploy_key
 gha_deploy_key.pub
 
-.env.local
-
 *.iml

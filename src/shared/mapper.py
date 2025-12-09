@@ -26,7 +26,7 @@ def map_date_time(timestamp: dict) -> date|None:
     """
     if 'dateTime' in timestamp:
         return datetime.fromisoformat(timestamp['dateTime'])
-    if 'date' in timestamp:
+    elif 'date' in timestamp:
         return datetime.fromisoformat(timestamp['date'])
 
 

@@ -5,6 +5,7 @@ Revises: 016f06669a0e
 Create Date: 2025-12-08 22:03:50.735384
 
 """
+from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
@@ -12,11 +13,11 @@ from sqlalchemy.dialects import postgresql
 from pgvector.sqlalchemy import Vector
 
 
-revision = "823efc604e3d"
-
-down_revision = "016f06669a0e"
-branch_labels = None
-depends_on = None
+# revision identifiers, used by Alembic.
+revision: str = '823efc604e3d'
+down_revision: Union[str, Sequence[str], None] = '016f06669a0e'
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade():

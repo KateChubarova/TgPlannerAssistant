@@ -1,7 +1,8 @@
-import requests
-from dataclasses import dataclass
-from typing import List, Optional, Dict
 import os
+from dataclasses import dataclass
+from typing import Dict, List, Optional
+
+import requests
 
 GOOGLE_SEARCH_API_KEY = os.getenv("GOOGLE_SEARCH_API_KEY")
 GOOGLE_SEARCH_CX = os.getenv("GOOGLE_SEARCH_CX")
@@ -105,7 +106,6 @@ def simple_search(query: str, limit: int = 3) -> List[WebResult]:
                 title=item.get("title", ""),
                 url=item.get("link", ""),
                 snippet=item.get("snippet", ""),
-
             )
         )
 

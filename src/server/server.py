@@ -1,8 +1,8 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 
+from shared.storage.users_repo import get_user, save_tokens
 from sources.google_calendar.google_auth import exchange_code_for_tokens
-from shared.storage.users_repo import save_tokens, get_user
 
 app = FastAPI()
 

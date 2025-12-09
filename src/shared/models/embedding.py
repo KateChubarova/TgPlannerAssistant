@@ -1,5 +1,5 @@
 from pgvector.sqlalchemy import VECTOR
-from sqlalchemy import Column, BigInteger, String, Text, TIMESTAMP, ARRAY
+from sqlalchemy import ARRAY, TIMESTAMP, BigInteger, Column, String, Text
 
 from shared.storage.db import Base
 

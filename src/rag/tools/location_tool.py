@@ -12,7 +12,7 @@ location_tool = {
             "properties": {
                 "location": {
                     "type": "string",
-                    "description": "Локация события из календаря: адрес или название места."
+                    "description": "Локация события из календаря: адрес или название места.",
                 }
             },
             "required": ["location"],

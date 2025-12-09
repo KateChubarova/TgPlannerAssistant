@@ -1,11 +1,12 @@
 import os
+
 import telebot
 from telebot import types
 
-from sources.google_calendar.google_auth import build_auth_url
 from rag.service import answer_with_rag
 from shared.helper import get_message
-from shared.storage.users_repo import get_user, create_user
+from shared.storage.users_repo import create_user, get_user
+from sources.google_calendar.google_auth import build_auth_url
 from sources.google_calendar.google_calendar import load_all_events
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -34,7 +35,7 @@ def handle_start(message: telebot.types.Message):
         "Привет! Я — твой ассистент-планировщик. Я могу подсказать, что у тебя запланировано, во сколько встреча,"
         " где она проходит и многое другое. Сначала войди в Google Calendar, а затем синхронизируй календарь — после "
         "этого я смогу работать с твоим расписанием.",
-        reply_markup=get_sync_bottom_menu(True)
+        reply_markup=get_sync_bottom_menu(True),
     )
 
 
@@ -59,10 +60,13 @@ def login_button_handler(message):
             user_id,
             message.from_user.first_name,
             message.from_user.last_name,
-            message.from_user.username)
+            message.from_user.username,
+        )
     if not user.google_access_token:
         auth_url = build_auth_url(user_id)
-        bot.send_message(chat_id, f"Используй эту ссылку для логина в Google Calendar {auth_url}")
+        bot.send_message(
+            chat_id, f"Используй эту ссылку для логина в Google Calendar {auth_url}"
+        )
 
 
 @bot.message_handler(func=lambda m: m.text == SYNC_BTN)
@@ -87,7 +91,7 @@ def sync_button_handler(message):
         bot.send_message(
             chat_id,
             get_message(inserted, updated, deleted),
-            reply_markup=get_sync_bottom_menu()
+            reply_markup=get_sync_bottom_menu(),
         )
 
     except Exception as e:
@@ -96,12 +100,13 @@ def sync_button_handler(message):
             chat_id,
             "Не удалось синхронизировать календарь 😔\n"
             "Проверь настройки и попробуй ещё раз.",
-            reply_markup=get_sync_bottom_menu()
+            reply_markup=get_sync_bottom_menu(),
         )
 
 
-@bot.message_handler(content_types=["text"],
-                     func=lambda m: m.text not in [LOGIN_BTN, SYNC_BTN])
+@bot.message_handler(
+    content_types=["text"], func=lambda m: m.text not in [LOGIN_BTN, SYNC_BTN]
+)
 def process_message(message: telebot.types.Message):
     """
     Process incoming text messages and generate a response using the RAG system.
@@ -127,7 +132,7 @@ def process_message(message: telebot.types.Message):
         message.chat.id,
         reply,
         parse_mode="Markdown",
-        reply_markup=get_sync_bottom_menu()
+        reply_markup=get_sync_bottom_menu(),
     )
 
 

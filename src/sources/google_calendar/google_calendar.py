@@ -3,14 +3,14 @@ from datetime import datetime, timedelta
 
 from dateutil import parser
 from googleapiclient.discovery import build
-from sqlalchemy import select, delete
+from sqlalchemy import delete, select
 
 from shared.mapper import map_events
-from shared.models.embedding import Embedding
-from sources.google_calendar.google_auth import get_creds
-from shared.storage.db import SessionLocal
 from shared.models.calendar_event import CalendarEvent
+from shared.models.embedding import Embedding
 from shared.models.user import TgUser
+from shared.storage.db import SessionLocal
+from sources.google_calendar.google_auth import get_creds
 
 CREDENTIALS_PATH = os.getenv("GOOGLE_CREDENTIALS")
 
@@ -88,8 +88,13 @@ def load_all_events(user: TgUser) -> tuple[int, int, int]:
     return len(to_insert), len(to_update), len(ids_to_delete)
 
 
-def fetch_events(user: TgUser, calendar_id: str = "primary", time_min: datetime = None,
-                 time_max: datetime = None, max_results: int = 2500) -> [CalendarEvent]:
+def fetch_events(
+    user: TgUser,
+    calendar_id: str = "primary",
+    time_min: datetime = None,
+    time_max: datetime = None,
+    max_results: int = 2500,
+) -> [CalendarEvent]:
     """
     Fetch events from a user's Google Calendar within a given time range.
 
@@ -116,14 +121,18 @@ def fetch_events(user: TgUser, calendar_id: str = "primary", time_min: datetime 
     if time_max is None:
         time_max = datetime.utcnow() + timedelta(days=180)
 
-    events_result = service.events().list(
-        calendarId=calendar_id,
-        timeMin=time_min.isoformat() + "Z",
-        timeMax=time_max.isoformat() + "Z",
-        singleEvents=True,
-        orderBy="startTime",
-        maxResults=max_results,
-    ).execute()
+    events_result = (
+        service.events()
+        .list(
+            calendarId=calendar_id,
+            timeMin=time_min.isoformat() + "Z",
+            timeMax=time_max.isoformat() + "Z",
+            singleEvents=True,
+            orderBy="startTime",
+            maxResults=max_results,
+        )
+        .execute()
+    )
 
     return [
         CalendarEvent(
@@ -133,11 +142,14 @@ def fetch_events(user: TgUser, calendar_id: str = "primary", time_min: datetime 
             title=item.get("summary"),
             description=item.get("description"),
             location=item.get("location"),
-            participants=[a.get("email") or a.get("displayName") or "" for a in item.get("attendees", [])],
+            participants=[
+                a.get("email") or a.get("displayName") or ""
+                for a in item.get("attendees", [])
+            ],
             start_ts=item.get("start"),
             end_ts=item.get("end"),
             status="confirmed",
-            updated=parser.isoparse(item.get("updated"))
+            updated=parser.isoparse(item.get("updated")),
         )
         for item in events_result.get("items", [])
     ]

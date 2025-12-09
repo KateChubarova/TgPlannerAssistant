@@ -23,10 +23,7 @@ client = OpenAI(api_key=OPENAI_TOKEN)
 tz = tzlocal.get_localzone()
 now = datetime.now(tz).isoformat(timespec="seconds")
 
-system_prompt = prompts["system"].format(
-    now=now,
-    timezone=tz
-)
+system_prompt = prompts["system"].format(now=now, timezone=tz)
 
 
 def build_context(records: list[Embedding]) -> str:
@@ -48,7 +45,8 @@ def build_context(records: list[Embedding]) -> str:
     for record in records:
         parts.append(
             f"[{record.calendar_name}/{record.source}] "
-            f"{record.combined_text} (участники: {record.participants})")
+            f"{record.combined_text} (участники: {record.participants})"
+        )
 
     return "\n".join(parts) if parts else "Нет релевантных записей календаря."
 
@@ -79,7 +77,7 @@ def answer_with_rag(user: TgUser, user_query: str, top_k=5) -> str | None:
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "assistant", "content": f"Контекст событий пользователя:\n{context}"},
-        {"role": "user", "content": user_query}
+        {"role": "user", "content": user_query},
     ]
 
     completion = client.chat.completions.create(
@@ -101,7 +99,9 @@ def answer_with_rag(user: TgUser, user_query: str, top_k=5) -> str | None:
                 return answer_with_location_info(tool_call, messages)
 
 
-def answer_with_location_info(tool_call: ChatCompletionMessage, messages: [dict]) -> str:
+def answer_with_location_info(
+    tool_call: ChatCompletionMessage, messages: [dict]
+) -> str:
     """
     Handle a location tool call and enrich the answer with location-based information.
 
@@ -124,12 +124,14 @@ def answer_with_location_info(tool_call: ChatCompletionMessage, messages: [dict]
     location = args["location"]
 
     tool_result = enrich_event_by_location(location=location)
-    messages.append({
-        "role": "tool",
-        "tool_call_id": tool_call.id,
-        "name": "enrich_event_by_location",
-        "content": json.dumps(tool_result, ensure_ascii=False),
-    })
+    messages.append(
+        {
+            "role": "tool",
+            "tool_call_id": tool_call.id,
+            "name": "enrich_event_by_location",
+            "content": json.dumps(tool_result, ensure_ascii=False),
+        }
+    )
 
     final = client.chat.completions.create(
         model=CHAT_MODEL,

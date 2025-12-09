@@ -40,9 +40,9 @@ jobs:
           KEY="${{ secrets.TRELLO_KEY }}"
           TOKEN="${{ secrets.TRELLO_TOKEN }}"
           DONE_ID="${{ secrets.TRELLO_DONE_LIST_ID }}"
-          
+
           SEARCH_URL="https://api.trello.com/1/search"
-          
+
           RESP=$(curl -sG "$SEARCH_URL" \
             --data-urlencode "query=$NUM" \
             --data-urlencode "modelTypes=cards" \

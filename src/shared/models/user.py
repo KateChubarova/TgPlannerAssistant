@@ -1,4 +1,5 @@
-from sqlalchemy import Column, BigInteger, String, Text, TIMESTAMP, func
+from sqlalchemy import TIMESTAMP, BigInteger, Column, String, Text, func
+
 from shared.storage.db import Base
 
 

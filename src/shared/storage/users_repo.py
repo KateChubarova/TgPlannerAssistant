@@ -1,5 +1,5 @@
-from shared.storage.db import SessionLocal
 from shared.models.user import TgUser
+from shared.storage.db import SessionLocal
 
 
 def get_user(user_id: int) -> TgUser:
@@ -40,10 +40,7 @@ def create_user(user_id: int, first_name: str, last_name: str, username: str):
     """
     with SessionLocal() as session:
         user = TgUser(
-            id=user_id,
-            first_name=first_name,
-            last_name=last_name,
-            username=username
+            id=user_id, first_name=first_name, last_name=last_name, username=username
         )
         session.add(user)
         session.commit()

@@ -1,4 +1,5 @@
 import os
+
 from openai import OpenAI
 from pgvector import Vector
 

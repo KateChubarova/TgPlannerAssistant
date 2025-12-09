@@ -21,7 +21,7 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     op.add_column(
         "tg_embeddings",
-        sa.Column("updated", sa.TIMESTAMP(), nullable=True),
+        sa.Column("updated", sa.TIMESTAMP(timezone=True), nullable=True),
     )
 
 

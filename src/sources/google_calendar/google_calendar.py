@@ -15,7 +15,7 @@ from sources.google_calendar.google_auth import get_creds
 CREDENTIALS_PATH = os.getenv("GOOGLE_CREDENTIALS")
 
 
-def load_all_events(user: TgUser) -> tuple[int, int, int]:
+def load_all_events(user: TgUser, progress_callback: callable) -> tuple[int, int, int]:
     """
     Load all calendar events for a user and synchronize them with the database.
 
@@ -25,6 +25,21 @@ def load_all_events(user: TgUser) -> tuple[int, int, int]:
 
     Args:
         user (TgUser): The Telegram user whose Google Calendar events should be synchronized.
+        progress_callback (callable, optional):
+            A function that will be called during the heavy processing step
+            (embedding generation) to report progress. The callback must accept
+            two integer arguments:
+
+                progress_callback(current: int, total: int)
+
+            where:
+                * current — number of processed items so far
+                * total   — total number of items to process
+
+            This can be used to update a loading indicator in a Telegram bot
+            (for example, showing percentage of completion). If None, progress
+            updates are not reported.
+
 
     Return:
         tuple[int, int, int]: A tuple containing the number of inserted, updated,
@@ -63,7 +78,7 @@ def load_all_events(user: TgUser) -> tuple[int, int, int]:
         ids_need_mapping = ids_to_insert | ids_to_update
         events_to_map = [e for e in events if e.id in ids_need_mapping]
 
-        batch: list[Embedding] = map_events(user, events_to_map)
+        batch = map_events(user, events_to_map, progress_callback=progress_callback)
 
         to_insert = [row for row in batch if row.id in ids_to_insert]
         to_update = [row for row in batch if row.id in ids_to_update]

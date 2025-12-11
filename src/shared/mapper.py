@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Iterable, List
+from typing import List
 
 from pgvector import Vector
 
@@ -65,7 +65,11 @@ def map_event_to_embedding(
     )
 
 
-def map_events(user: TgUser, events: Iterable[CalendarEvent]) -> List[Embedding]:
+def map_events(
+    user: TgUser, events: [CalendarEvent], progress_callback=None
+) -> List[Embedding]:
+    total = len(events) or 1
+
     """
     Convert multiple calendar events into embedding objects.
 
@@ -75,12 +79,30 @@ def map_events(user: TgUser, events: Iterable[CalendarEvent]) -> List[Embedding]
     Args:
         user (TgUser): The Telegram user to whom the events belong.
         events (Iterable[CalendarEvent]): A collection of calendar events to embed.
+        progress_callback (callable, optional):
+            A function that will be called during the heavy processing step
+            (embedding generation) to report progress. The callback must accept
+            two integer arguments:
+
+                progress_callback(current: int, total: int)
+
+            where:
+                * current — number of processed items so far
+                * total   — total number of items to process
+
+            This can be used to update a loading indicator in a Telegram bot
+            (for example, showing percentage of completion). If None, progress
+            updates are not reported.
 
     Return:
         List[Embedding]: A list of embedding objects representing the provided events.
     """
     embeddings: List[Embedding] = []
-    for event in events:
+    for idx, event in enumerate(events, start=1):
         embedding = map_event_to_embedding(user, event, embed_calendar_event(event))
         embeddings.append(embedding)
+
+        if progress_callback:
+            progress_callback(idx, total)
+
     return embeddings

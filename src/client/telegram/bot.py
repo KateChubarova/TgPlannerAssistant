@@ -81,6 +81,8 @@ def sync_button_handler(message):
     message back to the user. If synchronization fails, an explanatory error
     message is returned.
 
+    Show progress of calendar loading in percents.
+
     Args:
         message (telebot.types.Message): The incoming Telegram message generated when the user presses
                 the synchronization button.
@@ -88,8 +90,23 @@ def sync_button_handler(message):
     chat_id = message.chat.id
     user_id = message.from_user.id
     user = get_user(user_id)
+
+    status_msg = bot.send_message(
+        chat_id,
+        "Синхронизация календаря… ⏳",
+    )
+
     try:
-        inserted, updated, deleted = load_all_events(user)
+
+        def on_step(current, total):
+            percent = int(current / total * 100)
+            bot.edit_message_text(
+                chat_id=chat_id,
+                message_id=status_msg.message_id,
+                text=f"Синхронизация календаря… {percent}%",
+            )
+
+        inserted, updated, deleted = load_all_events(user, progress_callback=on_step)
         bot.send_message(
             chat_id,
             get_message(inserted, updated, deleted),

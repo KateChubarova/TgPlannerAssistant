@@ -1,5 +1,4 @@
-from typing import List
-
+from pgvector import Vector
 from sqlalchemy import select
 
 from shared.models.embedding import Embedding
@@ -9,7 +8,7 @@ from shared.storage.db import SessionLocal
 
 def search_similar_embeddings(
     user: TgUser,
-    embedding: List[float],
+    embedding: Vector,
     top_k: int = 5,
 ) -> [Embedding]:
     stmt = (

@@ -50,38 +50,38 @@ def load_all_events(user: TgUser, progress_callback: callable) -> tuple[int, int
     if not events:
         raise ValueError("Календарь пуст или не удалось извлечь события")
 
-    incoming_ids = {e.id for e in events}
+    incoming_ids = {e.event_id for e in events}
 
     with SessionLocal() as session:
         existing_rows = session.scalars(
             select(Embedding).where(Embedding.user_id == user.id)
         ).all()
 
-        existing_by_id = {row.id: row for row in existing_rows}
+        existing_by_id = {row.event_id: row for row in existing_rows}
         existing_ids = set(existing_by_id.keys())
 
         ids_to_insert = incoming_ids - existing_ids
         ids_to_update: set[str] = set()
 
         for event in events:
-            row = existing_by_id.get(event.id)
+            row = existing_by_id.get(event.event_id)
             if not row:
                 continue
 
             if row.updated is None or event.updated is None:
-                ids_to_update.add(event.id)
+                ids_to_update.add(event.event_id)
             elif event.updated > row.updated:
-                ids_to_update.add(event.id)
+                ids_to_update.add(event.event_id)
 
         ids_to_delete = existing_ids - incoming_ids
 
         ids_need_mapping = ids_to_insert | ids_to_update
-        events_to_map = [e for e in events if e.id in ids_need_mapping]
+        events_to_map = [e for e in events if e.event_id in ids_need_mapping]
 
         batch = map_events(user, events_to_map, progress_callback=progress_callback)
 
-        to_insert = [row for row in batch if row.id in ids_to_insert]
-        to_update = [row for row in batch if row.id in ids_to_update]
+        to_insert = [row for row in batch if row.event_id in ids_to_insert]
+        to_update = [row for row in batch if row.event_id in ids_to_update]
 
         if to_insert:
             session.add_all(to_insert)
@@ -94,7 +94,7 @@ def load_all_events(user: TgUser, progress_callback: callable) -> tuple[int, int
             session.execute(
                 delete(Embedding).where(
                     Embedding.user_id == user.id,
-                    Embedding.id.in_(ids_to_delete),
+                    Embedding.event_id.in_(ids_to_delete),
                 )
             )
 
@@ -151,7 +151,7 @@ def fetch_events(
 
     return [
         CalendarEvent(
-            id=item.get("id"),
+            event_id=item.get("id"),
             source="google",
             calendar=calendar_id,
             title=item.get("summary"),

@@ -5,7 +5,7 @@ from typing import List, Optional
 
 @dataclass
 class CalendarEvent:
-    id: str
+    event_id: str
     title: str
     source: str
     calendar: str

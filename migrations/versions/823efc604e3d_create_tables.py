@@ -49,6 +49,7 @@ def upgrade():
     op.create_table(
         "tg_embeddings",
         sa.Column("id", sa.String(), primary_key=True),
+        sa.Column("event_id", sa.String(), nullable=True),
         sa.Column("participants", postgresql.ARRAY(sa.String()), nullable=True),
         sa.Column("combined_text", sa.Text(), nullable=True),
         sa.Column("calendar_name", sa.Text(), nullable=True),

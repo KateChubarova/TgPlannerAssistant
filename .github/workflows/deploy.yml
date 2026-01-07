@@ -1,30 +1,30 @@
-name: Build & Deploy
-
-on:
-  push:
-    branches:
-      - main
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Build Docker image (just to check it builds)
-        run: |
-          docker build -t tg-planner-assistant-server .
-
-      - name: Deploy to server via SSH
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            set -e
-            cd /root/Tg-Planner-Assistant     # если путь другой — поменяй
-            git pull origin main
-            docker compose build
-            docker compose up -d
+#name: Build & Deploy
+#
+#on:
+#  push:
+#    branches:
+#      - main
+#jobs:
+#  build-and-deploy:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout repo
+#        uses: actions/checkout@v4
+#
+#      - name: Build Docker image (just to check it builds)
+#        run: |
+#          docker build -t tg-planner-assistant-server .
+#
+#      - name: Deploy to server via SSH
+#        uses: appleboy/ssh-action@v1.2.0
+#        with:
+#          host: ${{ secrets.SSH_HOST }}
+#          username: ${{ secrets.SSH_USER }}
+#          key: ${{ secrets.SSH_KEY }}
+#          script: |
+#            set -e
+#            cd /root/Tg-Planner-Assistant     # если путь другой — поменяй
+#            git pull origin main
+#            docker compose build
+#            docker compose up -d

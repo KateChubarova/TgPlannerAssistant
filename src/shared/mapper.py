@@ -49,7 +49,8 @@ def map_event_to_embedding(
             and its semantic vector.
     """
     return Embedding(
-        id=event.id,
+        id=event.event_id + str(user.id),
+        event_id=event.event_id,
         participants=event.participants,
         combined_text=event.to_str(),
         calendar_name=event.calendar,

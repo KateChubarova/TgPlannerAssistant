@@ -9,6 +9,7 @@ class Embedding(Base):
 
     id = Column(String, primary_key=True)
 
+    event_id = Column(String)
     participants = Column(ARRAY(String))
     combined_text = Column(Text)
     calendar_name = Column(Text)

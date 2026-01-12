@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 
 import tzlocal
+from langsmith import traceable
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessageFunctionToolCall
 
@@ -52,6 +53,7 @@ def build_context(records: list[Embedding]) -> str:
     return "\n".join(parts) if parts else "Нет релевантных записей календаря."
 
 
+@traceable(run_type="llm")
 def answer_with_rag(user: TgUser, user_query: str, top_k=5) -> str | None:
     """
     Generate an answer using a retrieval-augmented generation (RAG) pipeline.
@@ -102,6 +104,7 @@ def answer_with_rag(user: TgUser, user_query: str, top_k=5) -> str | None:
                 return answer_with_company_info(tool_call, messages)
 
 
+@traceable(run_type="llm")
 def answer_with_location_info(
     tool_call: ChatCompletionMessageFunctionToolCall, messages: [dict]
 ) -> str:
@@ -144,6 +147,7 @@ def answer_with_location_info(
     return final.choices[0].message.content
 
 
+@traceable(run_type="llm")
 def answer_with_company_info(
     tool_call: ChatCompletionMessageFunctionToolCall,
     messages: list[dict],

@@ -10,6 +10,11 @@ services:
       - .env
     environment:
       DATABASE_URL: postgresql://k.chubarava:12345@db:5432/postgres
+      LANGSMITH_TRACING: ${LANGSMITH_TRACING}
+      LANGSMITH_ENDPOINT: ${LANGSMITH_ENDPOINT}
+      LANGSMITH_API_KEY: ${LANGSMITH_API_KEY}
+      LANGSMITH_PROJECT: ${LANGSMITH_PROJECT}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
     command: bash -c "alembic upgrade head && python src/main.py"
 
   db:

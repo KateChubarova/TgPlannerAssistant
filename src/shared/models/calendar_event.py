@@ -4,6 +4,14 @@ from typing import List, Optional
 
 
 @dataclass
+class Organizer:
+    id: str
+    email: str
+    displayName: str
+    self: bool
+
+
+@dataclass
 class CalendarEvent:
     event_id: str
     title: str
@@ -16,6 +24,7 @@ class CalendarEvent:
     end_ts: dict
     status: str
     updated: datetime
+    organizer: Organizer
 
     def to_str(self) -> str:
         parts: List[str] = []
@@ -29,4 +38,8 @@ class CalendarEvent:
             parts.append("Participants: " + ", ".join(self.participants))
         if self.start_ts and self.end_ts:
             parts.append(f"Time: {self.start_ts} – {self.end_ts}")
+        if self.organizer:
+            parts.append(
+                f"Organizer: {self.organizer.displayName} ({self.organizer.email})"
+            )
         return " | ".join(parts)

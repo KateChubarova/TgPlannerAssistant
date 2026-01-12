@@ -63,6 +63,8 @@ def map_event_to_embedding(
         end_ts=map_date_time(event.end_ts),
         user_id=user.id,
         updated=event.updated,
+        organizer_email=event.organizer.email,
+        organizer_display_name=event.organizer.displayName,
     )
 
 

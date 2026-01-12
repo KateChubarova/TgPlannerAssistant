@@ -6,7 +6,7 @@ from googleapiclient.discovery import build
 from sqlalchemy import delete, select
 
 from shared.mapper import map_events
-from shared.models.calendar_event import CalendarEvent
+from shared.models.calendar_event import CalendarEvent, Organizer
 from shared.models.embedding import Embedding
 from shared.models.user import TgUser
 from shared.storage.db import SessionLocal
@@ -165,6 +165,12 @@ def fetch_events(
             end_ts=item.get("end"),
             status="confirmed",
             updated=parser.isoparse(item.get("updated")),
+            organizer=Organizer(
+                id=item.get("organizer", {}).get("id"),
+                email=item.get("organizer", {}).get("email"),
+                displayName=item.get("organizer", {}).get("displayName"),
+                self=item.get("organizer", {}).get("self"),
+            ),
         )
         for item in events_result.get("items", [])
     ]

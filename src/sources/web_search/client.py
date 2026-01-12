@@ -40,37 +40,21 @@ def enrich_event_by_location(location: str) -> Dict:
     }
 
 
-def format_location_info(results: list[WebResult]) -> str:
+def enrich_company_info(company_name: str) -> dict:
     """
-    Format detailed information about a location into a readable text block.
-
-    This function takes a list of web search results, selects the most relevant
-    one, and constructs a human-readable description including URL, snippet,
-    address, phone, and rating if available.
+    Fetch basic public information about a company using a web search.
 
     Args:
-        results (list[WebResult]): A list of web search result objects.
+        company_name (str): Name of the company to enrich information for.
 
     Return:
-        str: A formatted description of the top search result, or a fallback message
-            if no results are available.
+        dict: A dictionary containing the company name and raw web search results.
     """
-    if not results:
-        return "Дополнительной информации о месте не нашлось."
-
-    top = results[0]
-    parts = [
-        f"Ссылка: {top.url}",
-        f"Описание: {top.snippet}",
-    ]
-    if top.address:
-        parts.append(f"Адрес: {top.address}")
-    if top.telephone:
-        parts.append(f"Телефон: {top.telephone}")
-    if top.rating:
-        parts.append(f"Рейтинг: {top.rating}")
-
-    return "\n".join(parts)
+    results = simple_search(company_name, limit=3)
+    return {
+        "company_name": company_name,
+        "web_results": f"{results}",
+    }
 
 
 def simple_search(query: str, limit: int = 3) -> List[WebResult]:
@@ -109,5 +93,4 @@ def simple_search(query: str, limit: int = 3) -> List[WebResult]:
             )
         )
 
-    print(results[0])
     return results[:limit]

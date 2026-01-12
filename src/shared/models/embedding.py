@@ -22,3 +22,5 @@ class Embedding(Base):
     start_ts = Column(TIMESTAMP(), nullable=True)
     user_id = Column(BigInteger)
     updated = Column(TIMESTAMP(timezone=True), nullable=True)
+    organizer_email = Column(String, nullable=True)
+    organizer_display_name = Column(String, nullable=True)

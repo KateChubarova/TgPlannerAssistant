@@ -4,6 +4,7 @@ from datetime import datetime
 
 import tzlocal
 from langsmith import traceable
+from langsmith.wrappers import wrap_openai
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessageFunctionToolCall
 
@@ -20,7 +21,8 @@ OPENAI_TOKEN = os.getenv("OPENAI_API_KEY")
 CHAT_MODEL = os.getenv("CHAT_MODEL")
 
 prompts = load_yaml_prompts("prompt")
-client = OpenAI(api_key=OPENAI_TOKEN)
+_base_client = OpenAI(api_key=OPENAI_TOKEN)
+client = wrap_openai(_base_client)
 
 tz = tzlocal.get_localzone()
 now = datetime.now(tz).isoformat(timespec="seconds")

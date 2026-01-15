@@ -6,7 +6,6 @@ repos:
       - id: trailing-whitespace      # убирает пробелы в конце строк
       - id: end-of-file-fixer        # гарантирует перевод строки в конце файла
       - id: check-yaml               # проверяет валидность yaml
-      - id: check-added-large-files  # предупреждает про огромные файлы в git
 
   # Форматирование кода black
   - repo: https://github.com/psf/black

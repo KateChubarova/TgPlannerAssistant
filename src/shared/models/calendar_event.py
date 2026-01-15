@@ -15,14 +15,12 @@ class Organizer:
 class CalendarEvent:
     event_id: str
     title: str
-    source: str
     calendar: str
     description: Optional[str]
     location: Optional[str]
     participants: List[str]
     start_ts: dict
     end_ts: dict
-    status: str
     updated: datetime
     organizer: Organizer
 

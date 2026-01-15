@@ -15,6 +15,6 @@ _base_client = OpenAI(api_key=OPENAI_TOKEN)
 openai_client = wrap_openai(_base_client)
 
 tz = tzlocal.get_localzone()
-now = datetime.now(tz).isoformat(timespec="seconds")
+now = datetime.now(tz)
 
 system_prompt = prompts["system"].format(now=now, timezone=tz)

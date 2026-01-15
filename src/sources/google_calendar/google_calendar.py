@@ -132,9 +132,9 @@ def fetch_events(
     service = build("calendar", "v3", credentials=creds)
 
     if time_min is None:
-        time_min = datetime.utcnow() - timedelta(days=0)
+        time_min = datetime.now() - timedelta(days=0)
     if time_max is None:
-        time_max = datetime.utcnow() + timedelta(days=180)
+        time_max = datetime.now() + timedelta(days=180)
 
     events_result = (
         service.events()
@@ -152,7 +152,6 @@ def fetch_events(
     return [
         CalendarEvent(
             event_id=item.get("id"),
-            source="google",
             calendar=calendar_id,
             title=item.get("summary"),
             description=item.get("description"),
@@ -163,7 +162,6 @@ def fetch_events(
             ],
             start_ts=item.get("start"),
             end_ts=item.get("end"),
-            status="confirmed",
             updated=parser.isoparse(item.get("updated")),
             organizer=Organizer(
                 id=item.get("organizer", {}).get("id"),

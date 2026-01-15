@@ -132,9 +132,9 @@ def fetch_events(
     service = build("calendar", "v3", credentials=creds)
 
     if time_min is None:
-        time_min = datetime.utcnow() - timedelta(days=0)
+        time_min = datetime.now() - timedelta(days=0)
     if time_max is None:
-        time_max = datetime.utcnow() + timedelta(days=180)
+        time_max = datetime.now() + timedelta(days=180)
 
     events_result = (
         service.events()

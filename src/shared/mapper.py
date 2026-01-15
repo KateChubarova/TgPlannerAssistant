@@ -53,7 +53,7 @@ def map_event_to_embedding(
         event_id=event.event_id,
         participants=event.participants,
         combined_text=event.to_str(),
-        updated_at=datetime.utcnow(),
+        updated_at=datetime.now(),
         message=vec,
         location=event.location,
         start_ts=map_date_time(event.start_ts),

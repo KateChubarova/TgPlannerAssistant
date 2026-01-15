@@ -52,11 +52,8 @@ def upgrade():
         sa.Column("event_id", sa.String(), nullable=True),
         sa.Column("participants", postgresql.ARRAY(sa.String()), nullable=True),
         sa.Column("combined_text", sa.Text(), nullable=True),
-        sa.Column("calendar_name", sa.Text(), nullable=True),
         sa.Column("updated_at", sa.TIMESTAMP(), nullable=True),
-        sa.Column("source", sa.Text(), nullable=True),
         sa.Column("message", Vector(), nullable=True),  # VECTOR / Vector
-        sa.Column("status", sa.Text(), nullable=True),
         sa.Column("location", sa.Text(), nullable=True),
         sa.Column("end_ts", sa.TIMESTAMP(), nullable=True),
         sa.Column("start_ts", sa.TIMESTAMP(), nullable=True),

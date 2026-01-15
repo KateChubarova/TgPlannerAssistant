@@ -30,10 +30,7 @@ def build_context(records: list[Embedding]) -> str:
     """
     parts = []
     for record in records:
-        parts.append(
-            f"[{record.calendar_name}/{record.source}] "
-            f"{record.combined_text} (участники: {record.participants})"
-        )
+        parts.append(f"{record.combined_text} (участники: {record.participants})")
 
     return "\n".join(parts) if parts else "Нет релевантных записей календаря."
 

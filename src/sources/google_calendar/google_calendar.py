@@ -152,7 +152,6 @@ def fetch_events(
     return [
         CalendarEvent(
             event_id=item.get("id"),
-            source="google",
             calendar=calendar_id,
             title=item.get("summary"),
             description=item.get("description"),
@@ -163,7 +162,6 @@ def fetch_events(
             ],
             start_ts=item.get("start"),
             end_ts=item.get("end"),
-            status="confirmed",
             updated=parser.isoparse(item.get("updated")),
             organizer=Organizer(
                 id=item.get("organizer", {}).get("id"),

@@ -4,7 +4,7 @@ from langsmith import Client
 from openevals.llm import create_llm_as_judge
 from openevals.prompts import CORRECTNESS_PROMPT
 
-from rag.service import answer_with_rag
+from rag.graph_service import answer_with_rag
 from shared.models.embedding import Embedding
 from shared.models.user import TgUser
 

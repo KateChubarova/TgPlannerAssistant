@@ -33,7 +33,8 @@ RUN adduser \
 # Leverage a bind mount to requirements.txt to avoid having to copy them into
 # into this layer.
 COPY requirements.txt /app/requirements.txt
-RUN python -m pip install --no-cache-dir -r /app/requirements.txt
+RUN python -m pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
 
 # Switch to the non-privileged user to run the application.

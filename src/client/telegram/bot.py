@@ -3,7 +3,7 @@ import os
 import telebot
 from telebot import types
 
-from rag.service import answer_with_rag
+from rag.graph_service import answer_with_rag
 from shared.helper import get_message
 from shared.storage.users_repo import create_user, get_user
 from sources.google_calendar.google_auth import build_auth_url

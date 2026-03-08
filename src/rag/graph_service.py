@@ -7,11 +7,10 @@ from shared.models.embedding import Embedding
 from shared.nlp.embeddings import embed_query
 from shared.storage.embeddings_repo import search_similar_embeddings
 
-prompts = load_yaml_prompts("prompt")
-system_prompt = prompts["system"].format(now=datetime.now())
+prompts = load_yaml_prompts("system_prompt")
 
 
-def build_context(records: list[Embedding]) -> str:
+def build_calendar_context(records: list[Embedding]) -> str:
     """
     Build a textual context from a list of calendar embeddings.
 
@@ -43,14 +42,30 @@ def answer_with_rag(
     query_embedding = embed_fn(user_query)
     rows = search_fn(user, query_embedding, top_k=top_k)
 
-    context = build_context(rows)
+    calendar_context = build_calendar_context(rows)
+
+    system_prompt = prompts["system"].format(
+        now=datetime.now(),
+        timezone=datetime.now().astimezone().tzinfo,
+        calendar_context=calendar_context,
+    )
 
     messages = [
         {"role": "system", "content": system_prompt},
-        {"role": "system", "content": f"Контекст событий пользователя:\n{context}"},
         {"role": "user", "content": user_query},
     ]
 
-    result = graph.invoke({"messages": messages})
+    result = graph.invoke(
+        {"messages": messages},
+        config={
+            "metadata": {
+                "user_id": str(user.id),
+                "top_k": top_k,
+                "prompt_name": "planner_system_prompt",
+                "prompt_version": prompts["version"],
+                "retrieved_docs_count": len(rows),
+            },
+        },
+    )
 
     return result["messages"][-1].content

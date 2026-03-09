@@ -69,7 +69,7 @@ def answer_with_rag(
     result = graph.invoke(
         {"messages": messages},
         config={
-            "metadata": {get_prompt_metadata(user, top_k, len(rows))},
+            "metadata": get_prompt_metadata(user, top_k, len(rows)),
         },
     )
 

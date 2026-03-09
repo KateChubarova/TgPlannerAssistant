@@ -24,27 +24,12 @@ def read_root() -> dict:
 
 @app.get("/google/oauth2callback", response_class=HTMLResponse)
 async def google_oauth_callback(request: Request) -> HTMLResponse:
-    """
-    Handle the OAuth2 callback from Google after user authentication.
-
-    This endpoint processes the query parameters returned by Google, validates
-    the OAuth2 state, exchanges the authorization code for access and refresh
-    tokens, and saves them for the corresponding user.
-
-    Args:
-        request (Request): The FastAPI request object containing the query
-            parameters returned by Google's OAuth2 redirect.
-
-    Return:
-        HTMLResponse: An HTML response indicating whether the authentication
-            process was successful or failed due to an error.
-    """
     params = request.query_params
 
     if "error" in params:
         error = params["error"]
         return HTMLResponse(
-            f"Authentication error:{error}",
+            f"Authentication error: {error}",
             status_code=400,
         )
 
@@ -61,8 +46,15 @@ async def google_oauth_callback(request: Request) -> HTMLResponse:
     if user is None:
         raise HTTPException(status_code=404, detail="No user")
 
-    creds = exchange_code_for_tokens(code=code, state=state)
-    save_tokens(user_id, creds.token, creds.refresh_token, creds.expiry)
+    try:
+        creds = exchange_code_for_tokens(code=code, state=state)
+        save_tokens(user_id, creds.token, creds.refresh_token, creds.expiry)
+    except Exception as e:
+        print(f"OAuth callback failed: {e}", flush=True)
+        return HTMLResponse(
+            f"Authentication failed: {str(e)}",
+            status_code=500,
+        )
 
     return HTMLResponse(
         "Authentication success. Go to Telegram app and use /sync",

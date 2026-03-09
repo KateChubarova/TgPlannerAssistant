@@ -10,6 +10,17 @@ from shared.storage.embeddings_repo import search_similar_embeddings
 prompts = load_yaml_prompts("system_prompt")
 
 
+def get_prompt_metadata(user: TgUser, top_k: int, len_rows: int):
+    return {
+        "user_id": str(user.id),
+        "top_k": top_k,
+        "prompt_name": prompts["name"],
+        "prompt_version": prompts["version"],
+        "prompt_description": prompts["description"],
+        "retrieved_docs_count": len_rows,
+    }
+
+
 def build_calendar_context(records: list[Embedding]) -> str:
     """
     Build a textual context from a list of calendar embeddings.
@@ -58,13 +69,7 @@ def answer_with_rag(
     result = graph.invoke(
         {"messages": messages},
         config={
-            "metadata": {
-                "user_id": str(user.id),
-                "top_k": top_k,
-                "prompt_name": "planner_system_prompt",
-                "prompt_version": prompts["version"],
-                "retrieved_docs_count": len(rows),
-            },
+            "metadata": {get_prompt_metadata(user, top_k, len(rows))},
         },
     )
 
